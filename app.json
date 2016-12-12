@@ -1,5 +1,5 @@
 {
-  "name": "Kyangy",
+  "name": "kyangy",
   "description": "A barebones Node.js app using Express 4 with MongoDB, and ReactJS in Flux, using Webpack as a module bundler",
   "repository": "https://github.com/kyangy/kyangy",
   "logo": "https://node-js-sample.herokuapp.com/node.svg",

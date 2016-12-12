@@ -1,7 +1,7 @@
 {
-  "name": "Kyangy",
-  "version": "2.0.1",
-  "description": "Kyangy",
+  "name": "kyangy",
+  "version": "1.0.0",
+  "description": "kyangy",
   "repository": "https://github.com/kyangy/kyangy",
   "main": "index.js",
   "scripts": {
