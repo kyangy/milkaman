@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { Router, browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import createRoutes from 'routes';
-import * as types from 'types';
+import types from 'types';
 import configureStore from 'store/configureStore';
 import preRenderMiddleware from 'middlewares/preRenderMiddleware';
 
@@ -26,6 +26,10 @@ function onUpdate() {
   // We set it to null so that every subsequent client-side navigation will
   // still trigger a fetch data.
   // Read more: https://github.com/choonkending/react-webpack-node/pull/203#discussion_r60839356
+
+  // scroll to top
+  window.scrollTo(0,0)
+
   if (window.__INITIAL_STATE__ !== null) {
     window.__INITIAL_STATE__ = null;
     return;
@@ -46,4 +50,4 @@ render(
     <Router history={history} onUpdate={onUpdate}>
       {routes}
     </Router>
-  </Provider>, document.getElementById('app'));
+  </Provider>, document.querySelector('#app'));

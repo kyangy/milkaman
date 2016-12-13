@@ -1,0 +1,21 @@
+{
+  "name": "kyangy",
+  "description": "kyangy",
+  "main": "index.js",
+  "authors": [
+    "Kevin Yang"
+  ],
+  "license": "None",
+  "homepage": "https://github.com/kyangy/kyangy",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "4.0",
+    "toastr": "^2.1.3"
+  }
+}
