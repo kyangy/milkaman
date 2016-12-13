@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+'use strict'
+
 import mongoose from 'mongoose';
 import { db } from './constants';
 
@@ -20,9 +20,4 @@ export default () => {
   mongoose.connection.on('error', console.log);
   mongoose.connection.on('disconnected', connect);
 
-  // Register schema as mongoose model
-  const modelPath = path.join(__dirname, 'models');
-  fs.readdirSync(modelPath).forEach((file) => {
-    if (~file.indexOf('.js')) require(`${modelPath}/${file}`);
-  });
 };

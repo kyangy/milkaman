@@ -1,13 +1,14 @@
-import session from 'express-session';
-import connectMongo from 'connect-mongo';
-import { db } from './constants';
+'use strict'
 
-const MongoStore = connectMongo(session);
+import session from 'express-session'
+import connectMongo from 'connect-mongo'
+import { db } from './constants'
 
-export default () =>
-  new MongoStore(
-    {
-      url: db,
-      autoReconnect: true
-    }
-  );
+const MongoStore = connectMongo(session)
+
+export default () => {
+  new MongoStore({
+    url: db,
+    autoReconnect: true
+  })
+}
