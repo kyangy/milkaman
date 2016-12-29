@@ -10,7 +10,7 @@ class Home extends Component {
   render() {
     return (
       <div className='container-fluid'>
-        <h1 className={ cx('hello') }>Hello World!</h1>
+        <p className='text-center'>KYANGY</p>
       </div>
     );
   }

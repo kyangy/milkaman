@@ -1,8 +1,8 @@
 {
-  "name": "kyangy",
+  "name": "milkaman",
   "version": "1.0.0",
-  "description": "kyangy",
-  "repository": "https://github.com/kyangy/kyangy",
+  "description": "milkaman",
+  "repository": "https://github.com/kyangy/milkaman",
   "main": "index.js",
   "scripts": {
     "babel": "babel --presets es2015,stage-0 --ignore node_modules,public",

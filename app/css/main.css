@@ -14,9 +14,10 @@ body {
 
 .app {
   @apply --box;
-  height: 100%;
+  height: 100vh;
   font-weight: normal;
   font-smoothing: antialiased;
+  background-color: #fbfbf0;
 }
 
 
