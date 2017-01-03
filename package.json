@@ -19,7 +19,7 @@
     "build": "npm run clean && npm run build:prod && npm run build:node",
     "test": "cross-env NODE_ENV=test karma start",
     "test:watch": "cross-env NODE_ENV=test npm test -- --watch --no-single-run",
-    "postinstall": "*/.node_modules/bower/bin/bower install -f && npm run build",
+    "postinstall": "./node_modules/bower/bin/bower install -f && npm run build",
     "keep-green": "git merge master && rm -rf node_modules && npm install && npm start"
   },
   "author": "Kevin Yang",
