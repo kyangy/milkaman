@@ -8,7 +8,7 @@ import { ENV } from './config/appConfig';
 import { connect } from './db';
 import expressConfig from './config/express';
 import routes from './config/routes';
-// import api from './config/api';
+import api from './config/api';
 import passport from './config/passport';
 const App = require('../public/assets/server');
 const app = express();
@@ -42,13 +42,13 @@ if (ENV === 'development') {
 expressConfig(app);
 app.use('/', routes)
 
-// if (ENV !== 'production') {
-//   // no subdomain in development
-//   app.use('/api', api)
-// } else {
-//   // use subdomain in production
-//   app.use(subdomain('api', api))
-// }
+if (ENV !== 'production') {
+  // no subdomain in development
+  app.use('/api', api)
+} else {
+  // use subdomain in production
+  app.use(subdomain('api', api))
+}
 
 app.get('*', App.default);
 

@@ -1,13 +1,19 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux'
 
-import { signUp } from 'actions/users'
+import Scroll from 'react-scroll'
+import HandDown from 'react-icons/lib/fa/hand-o-down'
+import Carousel from 'nuka-carousel'
 
-import classNames from 'classnames/bind';
+import { signUp } from 'actions/Users'
+
+import classNames from 'classnames/bind'
 import styles from './index.css'
 
-const cx = classNames.bind(styles);
+const cx = classNames.bind(styles)
+const Link = Scroll.Link
+const Element = Scroll.Element
 
 class Home extends Component {
 
@@ -15,15 +21,13 @@ class Home extends Component {
     email: ''
   }
 
-  onChangeEmail = (email) => {
-    this.setState({ email: email })
+  onChangeEmail = (e) => {
+    this.setState({ email: e.target.value })
   }
 
   _signUp = () => {
     const { signUp } = this.props
     const { email } = this.state
-
-    console.log(email)
 
     if (email !== '') signUp(email)
   }
@@ -31,23 +35,23 @@ class Home extends Component {
   render() {
     return (
       <div className='container-fluid'>
-        <div className='row'>
-          <div className='col-md-6'>
-            <img className={ cx('logo') } src='imgs/logo.png' />
-          </div>
-          <div className='col-md-6'>
-            <h1>Your chocolate cravings delivered to your door!</h1>
-            <input placeholder='Email' onChange={ (email) => this.onChangeEmail(email) } />
-            <button onClick={ this._signUp }>Sign Up</button>
-          </div>
+        <div className={ cx('snow') }>
         </div>
-
         <div className='row'>
-          <div className='col-md-6'>
-            <img className={ cx('logo') } src='/imgs/oreo.png' />
-          </div>
-          <div className='col-md-6'>
-            <img className={ cx('logo') } src='/imgs/milkman.png' />
+          <div className={ cx('row-container') }>
+            <div className='col-md-6'>
+              <img className={ cx('img-width') } src='imgs/logo.png' />
+            </div>
+            <div className='col-md-6'>
+              <div className={ cx('signup-container')}>
+                <h2 style={{ color: 'white' }} className='text-xs-center text-md-center'>YOUR CHOCOLATE CRAVINGS DELIVERED TO YOUR DOOR!</h2>
+                <input placeholder='EMAIL' onChange={ (email) => this.onChangeEmail(email) } />
+                <button onClick={ this._signUp }>SIGN UP</button>
+                <div className='text-xs-center text-md-center'>
+                  <img className={ cx('img-width') } src='/imgs/milka.png' />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

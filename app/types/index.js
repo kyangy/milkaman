@@ -14,6 +14,10 @@ const types = keyMirror({
   SELECT_ALL_CONTACTS: null,
   DESELECT_ALL_CONTACTS: null,
   SEND_INVITES: null,
+
+  SIGNUP_USER: null,
+  SIGNUP_SUCCESS_USER: null,
+  SIGNUP_ERROR_USER: null
 })
 
 export default types
