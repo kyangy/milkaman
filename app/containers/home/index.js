@@ -59,7 +59,7 @@ class Home extends Component {
             </div>
             <div className='col-md-6'>
               <div className={ cx('signup-container')}>
-                <p className='text-xs-center text-md-center'>{ signedUp.message }</p>
+                <p style={{ color: 'white' }} className='text-xs-center text-md-center'>{ signedUp.message }</p>
                 <h2 style={{ color: 'white' }} className='text-xs-center text-md-center'>YOUR CHOCOLATE CRAVINGS DELIVERED TO YOUR DOOR!</h2>
                 <input placeholder='EMAIL' onChange={ (email) => this.onChangeEmail(email) } />
                 <button onClick={ this._signUp }>SIGN UP</button>
