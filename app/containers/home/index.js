@@ -15,6 +15,19 @@ const cx = classNames.bind(styles)
 const Link = Scroll.Link
 const Element = Scroll.Element
 
+function mapStateToProps(state) {
+  const { user } = state
+  return {
+    user
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({
+    signUp
+  }, dispatch)
+}
+
 class Home extends Component {
 
   state = {
@@ -33,6 +46,8 @@ class Home extends Component {
   }
 
   render() {
+    const { signedUp } = this.props.user
+
     return (
       <div className='container-fluid'>
         <div className={ cx('snow') }>
@@ -44,6 +59,7 @@ class Home extends Component {
             </div>
             <div className='col-md-6'>
               <div className={ cx('signup-container')}>
+                <p className='text-xs-center text-md-center'>{ signedUp.message }</p>
                 <h2 style={{ color: 'white' }} className='text-xs-center text-md-center'>YOUR CHOCOLATE CRAVINGS DELIVERED TO YOUR DOOR!</h2>
                 <input placeholder='EMAIL' onChange={ (email) => this.onChangeEmail(email) } />
                 <button onClick={ this._signUp }>SIGN UP</button>
@@ -57,17 +73,6 @@ class Home extends Component {
       </div>
     );
   }
-}
-
-function mapStateToProps(state) {
-  return {
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-    signUp
-  }, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

@@ -1,9 +1,7 @@
 import { combineReducers } from 'redux';
-import user from 'reducers/user';
-import topic from 'reducers/topic';
-import message from 'reducers/message';
+import user from './user';
 import { routerReducer as routing } from 'react-router-redux';
-import * as types from 'types';
+import types from '../types';
 
 const isFetching = ( state = false, action ) => {
   switch (action.type) {
@@ -21,9 +19,7 @@ const isFetching = ( state = false, action ) => {
 // router state
 const rootReducer = combineReducers({
   isFetching,
-  topic,
   user,
-  message,
   routing
 });
 

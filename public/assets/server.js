@@ -62,19 +62,19 @@ module.exports =
 
 	var _routes2 = _interopRequireDefault(_routes);
 
-	var _configureStore = __webpack_require__(297);
+	var _configureStore = __webpack_require__(340);
 
 	var _configureStore2 = _interopRequireDefault(_configureStore);
 
-	var _types = __webpack_require__(306);
+	var _types = __webpack_require__(337);
 
 	var _types2 = _interopRequireDefault(_types);
 
-	var _preRenderMiddleware = __webpack_require__(316);
+	var _preRenderMiddleware = __webpack_require__(356);
 
 	var _preRenderMiddleware2 = _interopRequireDefault(_preRenderMiddleware);
 
-	var _pageRenderer = __webpack_require__(317);
+	var _pageRenderer = __webpack_require__(357);
 
 	var _pageRenderer2 = _interopRequireDefault(_pageRenderer);
 
@@ -9785,13 +9785,13 @@ module.exports =
 
 	var _nukaCarousel2 = _interopRequireDefault(_nukaCarousel);
 
-	var _Users = __webpack_require__(292);
+	var _users = __webpack_require__(292);
 
 	var _bind = __webpack_require__(96);
 
 	var _bind2 = _interopRequireDefault(_bind);
 
-	var _index = __webpack_require__(296);
+	var _index = __webpack_require__(339);
 
 	var _index2 = _interopRequireDefault(_index);
 
@@ -9806,6 +9806,20 @@ module.exports =
 	var cx = _bind2.default.bind(_index2.default);
 	var Link = _reactScroll2.default.Link;
 	var Element = _reactScroll2.default.Element;
+
+	function mapStateToProps(state) {
+	  var user = state.user;
+
+	  return {
+	    user: user
+	  };
+	}
+
+	function mapDispatchToProps(dispatch) {
+	  return (0, _redux.bindActionCreators)({
+	    signUp: _users.signUp
+	  }, dispatch);
+	}
 
 	var Home = function (_Component) {
 	  _inherits(Home, _Component);
@@ -9839,6 +9853,9 @@ module.exports =
 	    value: function render() {
 	      var _this2 = this;
 
+	      var signedUp = this.props.user.signedUp;
+
+
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'container-fluid' },
@@ -9860,6 +9877,11 @@ module.exports =
 	              _react2.default.createElement(
 	                'div',
 	                { className: cx('signup-container') },
+	                _react2.default.createElement(
+	                  'p',
+	                  { className: 'text-xs-center text-md-center' },
+	                  signedUp.message
+	                ),
 	                _react2.default.createElement(
 	                  'h2',
 	                  { style: { color: 'white' }, className: 'text-xs-center text-md-center' },
@@ -9888,16 +9910,6 @@ module.exports =
 
 	  return Home;
 	}(_react.Component);
-
-	function mapStateToProps(state) {
-	  return {};
-	}
-
-	function mapDispatchToProps(dispatch) {
-	  return (0, _redux.bindActionCreators)({
-	    signUp: _Users.signUp
-	  }, dispatch);
-	}
 
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Home);
 
@@ -31631,25 +31643,26 @@ module.exports =
 	});
 	exports.signUp = signUp;
 
-	var _constants = __webpack_require__(293);
+	var _es6Promise = __webpack_require__(293);
 
-	var _index = __webpack_require__(295);
+	var _requests = __webpack_require__(294);
 
-	// import config from '../config'
+	var _types = __webpack_require__(337);
+
+	var _types2 = _interopRequireDefault(_types);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	(0, _es6Promise.polyfill)();
 
 	function signUp(email) {
-	  return function (dispatch, getState) {
-	    (0, _index.fetchAction)(dispatch, 'http://localhost:3000/api/signup', {
-	      credentials: 'include',
-	      method: 'POST',
-	      headers: {
-	        'Accept': 'application/json',
-	        'Content-Type': 'application/json'
-	      },
-	      body: JSON.stringify({
+	  return {
+	    type: _types2.default.SIGN_UP,
+	    promise: (0, _requests.POST)('signup', {
+	      data: {
 	        email: email
-	      })
-	    }, (0, _index.actionCreator)(_constants.USER.SIGN_UP_REQUEST), (0, _index.actionCreator)(_constants.USER.SIGN_UP_SUCCESS), (0, _index.actionCreator)(_constants.USER.SIGN_UP_FAILURE));
+	      }
+	    })
 	  };
 	}
 
@@ -31657,27 +31670,3919 @@ module.exports =
 /* 293 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var require;/*!
+	 * @overview es6-promise - a tiny implementation of Promises/A+.
+	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
+	 * @license   Licensed under MIT license
+	 *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
+	 * @version   3.3.1
+	 */
+
+	(function (global, factory) {
+	     true ? module.exports = factory() :
+	    typeof define === 'function' && define.amd ? define(factory) :
+	    (global.ES6Promise = factory());
+	}(this, (function () { 'use strict';
+
+	function objectOrFunction(x) {
+	  return typeof x === 'function' || typeof x === 'object' && x !== null;
+	}
+
+	function isFunction(x) {
+	  return typeof x === 'function';
+	}
+
+	var _isArray = undefined;
+	if (!Array.isArray) {
+	  _isArray = function (x) {
+	    return Object.prototype.toString.call(x) === '[object Array]';
+	  };
+	} else {
+	  _isArray = Array.isArray;
+	}
+
+	var isArray = _isArray;
+
+	var len = 0;
+	var vertxNext = undefined;
+	var customSchedulerFn = undefined;
+
+	var asap = function asap(callback, arg) {
+	  queue[len] = callback;
+	  queue[len + 1] = arg;
+	  len += 2;
+	  if (len === 2) {
+	    // If len is 2, that means that we need to schedule an async flush.
+	    // If additional callbacks are queued before the queue is flushed, they
+	    // will be processed by this flush that we are scheduling.
+	    if (customSchedulerFn) {
+	      customSchedulerFn(flush);
+	    } else {
+	      scheduleFlush();
+	    }
+	  }
+	};
+
+	function setScheduler(scheduleFn) {
+	  customSchedulerFn = scheduleFn;
+	}
+
+	function setAsap(asapFn) {
+	  asap = asapFn;
+	}
+
+	var browserWindow = typeof window !== 'undefined' ? window : undefined;
+	var browserGlobal = browserWindow || {};
+	var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
+	var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && ({}).toString.call(process) === '[object process]';
+
+	// test for web worker but not in IE10
+	var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined';
+
+	// node
+	function useNextTick() {
+	  // node version 0.10.x displays a deprecation warning when nextTick is used recursively
+	  // see https://github.com/cujojs/when/issues/410 for details
+	  return function () {
+	    return process.nextTick(flush);
+	  };
+	}
+
+	// vertx
+	function useVertxTimer() {
+	  return function () {
+	    vertxNext(flush);
+	  };
+	}
+
+	function useMutationObserver() {
+	  var iterations = 0;
+	  var observer = new BrowserMutationObserver(flush);
+	  var node = document.createTextNode('');
+	  observer.observe(node, { characterData: true });
+
+	  return function () {
+	    node.data = iterations = ++iterations % 2;
+	  };
+	}
+
+	// web worker
+	function useMessageChannel() {
+	  var channel = new MessageChannel();
+	  channel.port1.onmessage = flush;
+	  return function () {
+	    return channel.port2.postMessage(0);
+	  };
+	}
+
+	function useSetTimeout() {
+	  // Store setTimeout reference so es6-promise will be unaffected by
+	  // other code modifying setTimeout (like sinon.useFakeTimers())
+	  var globalSetTimeout = setTimeout;
+	  return function () {
+	    return globalSetTimeout(flush, 1);
+	  };
+	}
+
+	var queue = new Array(1000);
+	function flush() {
+	  for (var i = 0; i < len; i += 2) {
+	    var callback = queue[i];
+	    var arg = queue[i + 1];
+
+	    callback(arg);
+
+	    queue[i] = undefined;
+	    queue[i + 1] = undefined;
+	  }
+
+	  len = 0;
+	}
+
+	function attemptVertx() {
+	  try {
+	    var r = require;
+	    var vertx = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"vertx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	    vertxNext = vertx.runOnLoop || vertx.runOnContext;
+	    return useVertxTimer();
+	  } catch (e) {
+	    return useSetTimeout();
+	  }
+	}
+
+	var scheduleFlush = undefined;
+	// Decide what async method to use to triggering processing of queued callbacks:
+	if (isNode) {
+	  scheduleFlush = useNextTick();
+	} else if (BrowserMutationObserver) {
+	  scheduleFlush = useMutationObserver();
+	} else if (isWorker) {
+	  scheduleFlush = useMessageChannel();
+	} else if (browserWindow === undefined && "function" === 'function') {
+	  scheduleFlush = attemptVertx();
+	} else {
+	  scheduleFlush = useSetTimeout();
+	}
+
+	function then(onFulfillment, onRejection) {
+	  var _arguments = arguments;
+
+	  var parent = this;
+
+	  var child = new this.constructor(noop);
+
+	  if (child[PROMISE_ID] === undefined) {
+	    makePromise(child);
+	  }
+
+	  var _state = parent._state;
+
+	  if (_state) {
+	    (function () {
+	      var callback = _arguments[_state - 1];
+	      asap(function () {
+	        return invokeCallback(_state, child, callback, parent._result);
+	      });
+	    })();
+	  } else {
+	    subscribe(parent, child, onFulfillment, onRejection);
+	  }
+
+	  return child;
+	}
+
+	/**
+	  `Promise.resolve` returns a promise that will become resolved with the
+	  passed `value`. It is shorthand for the following:
+
+	  ```javascript
+	  let promise = new Promise(function(resolve, reject){
+	    resolve(1);
+	  });
+
+	  promise.then(function(value){
+	    // value === 1
+	  });
+	  ```
+
+	  Instead of writing the above, your code now simply becomes the following:
+
+	  ```javascript
+	  let promise = Promise.resolve(1);
+
+	  promise.then(function(value){
+	    // value === 1
+	  });
+	  ```
+
+	  @method resolve
+	  @static
+	  @param {Any} value value that the returned promise will be resolved with
+	  Useful for tooling.
+	  @return {Promise} a promise that will become fulfilled with the given
+	  `value`
+	*/
+	function resolve(object) {
+	  /*jshint validthis:true */
+	  var Constructor = this;
+
+	  if (object && typeof object === 'object' && object.constructor === Constructor) {
+	    return object;
+	  }
+
+	  var promise = new Constructor(noop);
+	  _resolve(promise, object);
+	  return promise;
+	}
+
+	var PROMISE_ID = Math.random().toString(36).substring(16);
+
+	function noop() {}
+
+	var PENDING = void 0;
+	var FULFILLED = 1;
+	var REJECTED = 2;
+
+	var GET_THEN_ERROR = new ErrorObject();
+
+	function selfFulfillment() {
+	  return new TypeError("You cannot resolve a promise with itself");
+	}
+
+	function cannotReturnOwn() {
+	  return new TypeError('A promises callback cannot return that same promise.');
+	}
+
+	function getThen(promise) {
+	  try {
+	    return promise.then;
+	  } catch (error) {
+	    GET_THEN_ERROR.error = error;
+	    return GET_THEN_ERROR;
+	  }
+	}
+
+	function tryThen(then, value, fulfillmentHandler, rejectionHandler) {
+	  try {
+	    then.call(value, fulfillmentHandler, rejectionHandler);
+	  } catch (e) {
+	    return e;
+	  }
+	}
+
+	function handleForeignThenable(promise, thenable, then) {
+	  asap(function (promise) {
+	    var sealed = false;
+	    var error = tryThen(then, thenable, function (value) {
+	      if (sealed) {
+	        return;
+	      }
+	      sealed = true;
+	      if (thenable !== value) {
+	        _resolve(promise, value);
+	      } else {
+	        fulfill(promise, value);
+	      }
+	    }, function (reason) {
+	      if (sealed) {
+	        return;
+	      }
+	      sealed = true;
+
+	      _reject(promise, reason);
+	    }, 'Settle: ' + (promise._label || ' unknown promise'));
+
+	    if (!sealed && error) {
+	      sealed = true;
+	      _reject(promise, error);
+	    }
+	  }, promise);
+	}
+
+	function handleOwnThenable(promise, thenable) {
+	  if (thenable._state === FULFILLED) {
+	    fulfill(promise, thenable._result);
+	  } else if (thenable._state === REJECTED) {
+	    _reject(promise, thenable._result);
+	  } else {
+	    subscribe(thenable, undefined, function (value) {
+	      return _resolve(promise, value);
+	    }, function (reason) {
+	      return _reject(promise, reason);
+	    });
+	  }
+	}
+
+	function handleMaybeThenable(promise, maybeThenable, then$$) {
+	  if (maybeThenable.constructor === promise.constructor && then$$ === then && maybeThenable.constructor.resolve === resolve) {
+	    handleOwnThenable(promise, maybeThenable);
+	  } else {
+	    if (then$$ === GET_THEN_ERROR) {
+	      _reject(promise, GET_THEN_ERROR.error);
+	    } else if (then$$ === undefined) {
+	      fulfill(promise, maybeThenable);
+	    } else if (isFunction(then$$)) {
+	      handleForeignThenable(promise, maybeThenable, then$$);
+	    } else {
+	      fulfill(promise, maybeThenable);
+	    }
+	  }
+	}
+
+	function _resolve(promise, value) {
+	  if (promise === value) {
+	    _reject(promise, selfFulfillment());
+	  } else if (objectOrFunction(value)) {
+	    handleMaybeThenable(promise, value, getThen(value));
+	  } else {
+	    fulfill(promise, value);
+	  }
+	}
+
+	function publishRejection(promise) {
+	  if (promise._onerror) {
+	    promise._onerror(promise._result);
+	  }
+
+	  publish(promise);
+	}
+
+	function fulfill(promise, value) {
+	  if (promise._state !== PENDING) {
+	    return;
+	  }
+
+	  promise._result = value;
+	  promise._state = FULFILLED;
+
+	  if (promise._subscribers.length !== 0) {
+	    asap(publish, promise);
+	  }
+	}
+
+	function _reject(promise, reason) {
+	  if (promise._state !== PENDING) {
+	    return;
+	  }
+	  promise._state = REJECTED;
+	  promise._result = reason;
+
+	  asap(publishRejection, promise);
+	}
+
+	function subscribe(parent, child, onFulfillment, onRejection) {
+	  var _subscribers = parent._subscribers;
+	  var length = _subscribers.length;
+
+	  parent._onerror = null;
+
+	  _subscribers[length] = child;
+	  _subscribers[length + FULFILLED] = onFulfillment;
+	  _subscribers[length + REJECTED] = onRejection;
+
+	  if (length === 0 && parent._state) {
+	    asap(publish, parent);
+	  }
+	}
+
+	function publish(promise) {
+	  var subscribers = promise._subscribers;
+	  var settled = promise._state;
+
+	  if (subscribers.length === 0) {
+	    return;
+	  }
+
+	  var child = undefined,
+	      callback = undefined,
+	      detail = promise._result;
+
+	  for (var i = 0; i < subscribers.length; i += 3) {
+	    child = subscribers[i];
+	    callback = subscribers[i + settled];
+
+	    if (child) {
+	      invokeCallback(settled, child, callback, detail);
+	    } else {
+	      callback(detail);
+	    }
+	  }
+
+	  promise._subscribers.length = 0;
+	}
+
+	function ErrorObject() {
+	  this.error = null;
+	}
+
+	var TRY_CATCH_ERROR = new ErrorObject();
+
+	function tryCatch(callback, detail) {
+	  try {
+	    return callback(detail);
+	  } catch (e) {
+	    TRY_CATCH_ERROR.error = e;
+	    return TRY_CATCH_ERROR;
+	  }
+	}
+
+	function invokeCallback(settled, promise, callback, detail) {
+	  var hasCallback = isFunction(callback),
+	      value = undefined,
+	      error = undefined,
+	      succeeded = undefined,
+	      failed = undefined;
+
+	  if (hasCallback) {
+	    value = tryCatch(callback, detail);
+
+	    if (value === TRY_CATCH_ERROR) {
+	      failed = true;
+	      error = value.error;
+	      value = null;
+	    } else {
+	      succeeded = true;
+	    }
+
+	    if (promise === value) {
+	      _reject(promise, cannotReturnOwn());
+	      return;
+	    }
+	  } else {
+	    value = detail;
+	    succeeded = true;
+	  }
+
+	  if (promise._state !== PENDING) {
+	    // noop
+	  } else if (hasCallback && succeeded) {
+	      _resolve(promise, value);
+	    } else if (failed) {
+	      _reject(promise, error);
+	    } else if (settled === FULFILLED) {
+	      fulfill(promise, value);
+	    } else if (settled === REJECTED) {
+	      _reject(promise, value);
+	    }
+	}
+
+	function initializePromise(promise, resolver) {
+	  try {
+	    resolver(function resolvePromise(value) {
+	      _resolve(promise, value);
+	    }, function rejectPromise(reason) {
+	      _reject(promise, reason);
+	    });
+	  } catch (e) {
+	    _reject(promise, e);
+	  }
+	}
+
+	var id = 0;
+	function nextId() {
+	  return id++;
+	}
+
+	function makePromise(promise) {
+	  promise[PROMISE_ID] = id++;
+	  promise._state = undefined;
+	  promise._result = undefined;
+	  promise._subscribers = [];
+	}
+
+	function Enumerator(Constructor, input) {
+	  this._instanceConstructor = Constructor;
+	  this.promise = new Constructor(noop);
+
+	  if (!this.promise[PROMISE_ID]) {
+	    makePromise(this.promise);
+	  }
+
+	  if (isArray(input)) {
+	    this._input = input;
+	    this.length = input.length;
+	    this._remaining = input.length;
+
+	    this._result = new Array(this.length);
+
+	    if (this.length === 0) {
+	      fulfill(this.promise, this._result);
+	    } else {
+	      this.length = this.length || 0;
+	      this._enumerate();
+	      if (this._remaining === 0) {
+	        fulfill(this.promise, this._result);
+	      }
+	    }
+	  } else {
+	    _reject(this.promise, validationError());
+	  }
+	}
+
+	function validationError() {
+	  return new Error('Array Methods must be provided an Array');
+	};
+
+	Enumerator.prototype._enumerate = function () {
+	  var length = this.length;
+	  var _input = this._input;
+
+	  for (var i = 0; this._state === PENDING && i < length; i++) {
+	    this._eachEntry(_input[i], i);
+	  }
+	};
+
+	Enumerator.prototype._eachEntry = function (entry, i) {
+	  var c = this._instanceConstructor;
+	  var resolve$$ = c.resolve;
+
+	  if (resolve$$ === resolve) {
+	    var _then = getThen(entry);
+
+	    if (_then === then && entry._state !== PENDING) {
+	      this._settledAt(entry._state, i, entry._result);
+	    } else if (typeof _then !== 'function') {
+	      this._remaining--;
+	      this._result[i] = entry;
+	    } else if (c === Promise) {
+	      var promise = new c(noop);
+	      handleMaybeThenable(promise, entry, _then);
+	      this._willSettleAt(promise, i);
+	    } else {
+	      this._willSettleAt(new c(function (resolve$$) {
+	        return resolve$$(entry);
+	      }), i);
+	    }
+	  } else {
+	    this._willSettleAt(resolve$$(entry), i);
+	  }
+	};
+
+	Enumerator.prototype._settledAt = function (state, i, value) {
+	  var promise = this.promise;
+
+	  if (promise._state === PENDING) {
+	    this._remaining--;
+
+	    if (state === REJECTED) {
+	      _reject(promise, value);
+	    } else {
+	      this._result[i] = value;
+	    }
+	  }
+
+	  if (this._remaining === 0) {
+	    fulfill(promise, this._result);
+	  }
+	};
+
+	Enumerator.prototype._willSettleAt = function (promise, i) {
+	  var enumerator = this;
+
+	  subscribe(promise, undefined, function (value) {
+	    return enumerator._settledAt(FULFILLED, i, value);
+	  }, function (reason) {
+	    return enumerator._settledAt(REJECTED, i, reason);
+	  });
+	};
+
+	/**
+	  `Promise.all` accepts an array of promises, and returns a new promise which
+	  is fulfilled with an array of fulfillment values for the passed promises, or
+	  rejected with the reason of the first passed promise to be rejected. It casts all
+	  elements of the passed iterable to promises as it runs this algorithm.
+
+	  Example:
+
+	  ```javascript
+	  let promise1 = resolve(1);
+	  let promise2 = resolve(2);
+	  let promise3 = resolve(3);
+	  let promises = [ promise1, promise2, promise3 ];
+
+	  Promise.all(promises).then(function(array){
+	    // The array here would be [ 1, 2, 3 ];
+	  });
+	  ```
+
+	  If any of the `promises` given to `all` are rejected, the first promise
+	  that is rejected will be given as an argument to the returned promises's
+	  rejection handler. For example:
+
+	  Example:
+
+	  ```javascript
+	  let promise1 = resolve(1);
+	  let promise2 = reject(new Error("2"));
+	  let promise3 = reject(new Error("3"));
+	  let promises = [ promise1, promise2, promise3 ];
+
+	  Promise.all(promises).then(function(array){
+	    // Code here never runs because there are rejected promises!
+	  }, function(error) {
+	    // error.message === "2"
+	  });
+	  ```
+
+	  @method all
+	  @static
+	  @param {Array} entries array of promises
+	  @param {String} label optional string for labeling the promise.
+	  Useful for tooling.
+	  @return {Promise} promise that is fulfilled when all `promises` have been
+	  fulfilled, or rejected if any of them become rejected.
+	  @static
+	*/
+	function all(entries) {
+	  return new Enumerator(this, entries).promise;
+	}
+
+	/**
+	  `Promise.race` returns a new promise which is settled in the same way as the
+	  first passed promise to settle.
+
+	  Example:
+
+	  ```javascript
+	  let promise1 = new Promise(function(resolve, reject){
+	    setTimeout(function(){
+	      resolve('promise 1');
+	    }, 200);
+	  });
+
+	  let promise2 = new Promise(function(resolve, reject){
+	    setTimeout(function(){
+	      resolve('promise 2');
+	    }, 100);
+	  });
+
+	  Promise.race([promise1, promise2]).then(function(result){
+	    // result === 'promise 2' because it was resolved before promise1
+	    // was resolved.
+	  });
+	  ```
+
+	  `Promise.race` is deterministic in that only the state of the first
+	  settled promise matters. For example, even if other promises given to the
+	  `promises` array argument are resolved, but the first settled promise has
+	  become rejected before the other promises became fulfilled, the returned
+	  promise will become rejected:
+
+	  ```javascript
+	  let promise1 = new Promise(function(resolve, reject){
+	    setTimeout(function(){
+	      resolve('promise 1');
+	    }, 200);
+	  });
+
+	  let promise2 = new Promise(function(resolve, reject){
+	    setTimeout(function(){
+	      reject(new Error('promise 2'));
+	    }, 100);
+	  });
+
+	  Promise.race([promise1, promise2]).then(function(result){
+	    // Code here never runs
+	  }, function(reason){
+	    // reason.message === 'promise 2' because promise 2 became rejected before
+	    // promise 1 became fulfilled
+	  });
+	  ```
+
+	  An example real-world use case is implementing timeouts:
+
+	  ```javascript
+	  Promise.race([ajax('foo.json'), timeout(5000)])
+	  ```
+
+	  @method race
+	  @static
+	  @param {Array} promises array of promises to observe
+	  Useful for tooling.
+	  @return {Promise} a promise which settles in the same way as the first passed
+	  promise to settle.
+	*/
+	function race(entries) {
+	  /*jshint validthis:true */
+	  var Constructor = this;
+
+	  if (!isArray(entries)) {
+	    return new Constructor(function (_, reject) {
+	      return reject(new TypeError('You must pass an array to race.'));
+	    });
+	  } else {
+	    return new Constructor(function (resolve, reject) {
+	      var length = entries.length;
+	      for (var i = 0; i < length; i++) {
+	        Constructor.resolve(entries[i]).then(resolve, reject);
+	      }
+	    });
+	  }
+	}
+
+	/**
+	  `Promise.reject` returns a promise rejected with the passed `reason`.
+	  It is shorthand for the following:
+
+	  ```javascript
+	  let promise = new Promise(function(resolve, reject){
+	    reject(new Error('WHOOPS'));
+	  });
+
+	  promise.then(function(value){
+	    // Code here doesn't run because the promise is rejected!
+	  }, function(reason){
+	    // reason.message === 'WHOOPS'
+	  });
+	  ```
+
+	  Instead of writing the above, your code now simply becomes the following:
+
+	  ```javascript
+	  let promise = Promise.reject(new Error('WHOOPS'));
+
+	  promise.then(function(value){
+	    // Code here doesn't run because the promise is rejected!
+	  }, function(reason){
+	    // reason.message === 'WHOOPS'
+	  });
+	  ```
+
+	  @method reject
+	  @static
+	  @param {Any} reason value that the returned promise will be rejected with.
+	  Useful for tooling.
+	  @return {Promise} a promise rejected with the given `reason`.
+	*/
+	function reject(reason) {
+	  /*jshint validthis:true */
+	  var Constructor = this;
+	  var promise = new Constructor(noop);
+	  _reject(promise, reason);
+	  return promise;
+	}
+
+	function needsResolver() {
+	  throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
+	}
+
+	function needsNew() {
+	  throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
+	}
+
+	/**
+	  Promise objects represent the eventual result of an asynchronous operation. The
+	  primary way of interacting with a promise is through its `then` method, which
+	  registers callbacks to receive either a promise's eventual value or the reason
+	  why the promise cannot be fulfilled.
+
+	  Terminology
+	  -----------
+
+	  - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
+	  - `thenable` is an object or function that defines a `then` method.
+	  - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
+	  - `exception` is a value that is thrown using the throw statement.
+	  - `reason` is a value that indicates why a promise was rejected.
+	  - `settled` the final resting state of a promise, fulfilled or rejected.
+
+	  A promise can be in one of three states: pending, fulfilled, or rejected.
+
+	  Promises that are fulfilled have a fulfillment value and are in the fulfilled
+	  state.  Promises that are rejected have a rejection reason and are in the
+	  rejected state.  A fulfillment value is never a thenable.
+
+	  Promises can also be said to *resolve* a value.  If this value is also a
+	  promise, then the original promise's settled state will match the value's
+	  settled state.  So a promise that *resolves* a promise that rejects will
+	  itself reject, and a promise that *resolves* a promise that fulfills will
+	  itself fulfill.
+
+
+	  Basic Usage:
+	  ------------
+
+	  ```js
+	  let promise = new Promise(function(resolve, reject) {
+	    // on success
+	    resolve(value);
+
+	    // on failure
+	    reject(reason);
+	  });
+
+	  promise.then(function(value) {
+	    // on fulfillment
+	  }, function(reason) {
+	    // on rejection
+	  });
+	  ```
+
+	  Advanced Usage:
+	  ---------------
+
+	  Promises shine when abstracting away asynchronous interactions such as
+	  `XMLHttpRequest`s.
+
+	  ```js
+	  function getJSON(url) {
+	    return new Promise(function(resolve, reject){
+	      let xhr = new XMLHttpRequest();
+
+	      xhr.open('GET', url);
+	      xhr.onreadystatechange = handler;
+	      xhr.responseType = 'json';
+	      xhr.setRequestHeader('Accept', 'application/json');
+	      xhr.send();
+
+	      function handler() {
+	        if (this.readyState === this.DONE) {
+	          if (this.status === 200) {
+	            resolve(this.response);
+	          } else {
+	            reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
+	          }
+	        }
+	      };
+	    });
+	  }
+
+	  getJSON('/posts.json').then(function(json) {
+	    // on fulfillment
+	  }, function(reason) {
+	    // on rejection
+	  });
+	  ```
+
+	  Unlike callbacks, promises are great composable primitives.
+
+	  ```js
+	  Promise.all([
+	    getJSON('/posts'),
+	    getJSON('/comments')
+	  ]).then(function(values){
+	    values[0] // => postsJSON
+	    values[1] // => commentsJSON
+
+	    return values;
+	  });
+	  ```
+
+	  @class Promise
+	  @param {function} resolver
+	  Useful for tooling.
+	  @constructor
+	*/
+	function Promise(resolver) {
+	  this[PROMISE_ID] = nextId();
+	  this._result = this._state = undefined;
+	  this._subscribers = [];
+
+	  if (noop !== resolver) {
+	    typeof resolver !== 'function' && needsResolver();
+	    this instanceof Promise ? initializePromise(this, resolver) : needsNew();
+	  }
+	}
+
+	Promise.all = all;
+	Promise.race = race;
+	Promise.resolve = resolve;
+	Promise.reject = reject;
+	Promise._setScheduler = setScheduler;
+	Promise._setAsap = setAsap;
+	Promise._asap = asap;
+
+	Promise.prototype = {
+	  constructor: Promise,
+
+	  /**
+	    The primary way of interacting with a promise is through its `then` method,
+	    which registers callbacks to receive either a promise's eventual value or the
+	    reason why the promise cannot be fulfilled.
+	  
+	    ```js
+	    findUser().then(function(user){
+	      // user is available
+	    }, function(reason){
+	      // user is unavailable, and you are given the reason why
+	    });
+	    ```
+	  
+	    Chaining
+	    --------
+	  
+	    The return value of `then` is itself a promise.  This second, 'downstream'
+	    promise is resolved with the return value of the first promise's fulfillment
+	    or rejection handler, or rejected if the handler throws an exception.
+	  
+	    ```js
+	    findUser().then(function (user) {
+	      return user.name;
+	    }, function (reason) {
+	      return 'default name';
+	    }).then(function (userName) {
+	      // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
+	      // will be `'default name'`
+	    });
+	  
+	    findUser().then(function (user) {
+	      throw new Error('Found user, but still unhappy');
+	    }, function (reason) {
+	      throw new Error('`findUser` rejected and we're unhappy');
+	    }).then(function (value) {
+	      // never reached
+	    }, function (reason) {
+	      // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
+	      // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
+	    });
+	    ```
+	    If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
+	  
+	    ```js
+	    findUser().then(function (user) {
+	      throw new PedagogicalException('Upstream error');
+	    }).then(function (value) {
+	      // never reached
+	    }).then(function (value) {
+	      // never reached
+	    }, function (reason) {
+	      // The `PedgagocialException` is propagated all the way down to here
+	    });
+	    ```
+	  
+	    Assimilation
+	    ------------
+	  
+	    Sometimes the value you want to propagate to a downstream promise can only be
+	    retrieved asynchronously. This can be achieved by returning a promise in the
+	    fulfillment or rejection handler. The downstream promise will then be pending
+	    until the returned promise is settled. This is called *assimilation*.
+	  
+	    ```js
+	    findUser().then(function (user) {
+	      return findCommentsByAuthor(user);
+	    }).then(function (comments) {
+	      // The user's comments are now available
+	    });
+	    ```
+	  
+	    If the assimliated promise rejects, then the downstream promise will also reject.
+	  
+	    ```js
+	    findUser().then(function (user) {
+	      return findCommentsByAuthor(user);
+	    }).then(function (comments) {
+	      // If `findCommentsByAuthor` fulfills, we'll have the value here
+	    }, function (reason) {
+	      // If `findCommentsByAuthor` rejects, we'll have the reason here
+	    });
+	    ```
+	  
+	    Simple Example
+	    --------------
+	  
+	    Synchronous Example
+	  
+	    ```javascript
+	    let result;
+	  
+	    try {
+	      result = findResult();
+	      // success
+	    } catch(reason) {
+	      // failure
+	    }
+	    ```
+	  
+	    Errback Example
+	  
+	    ```js
+	    findResult(function(result, err){
+	      if (err) {
+	        // failure
+	      } else {
+	        // success
+	      }
+	    });
+	    ```
+	  
+	    Promise Example;
+	  
+	    ```javascript
+	    findResult().then(function(result){
+	      // success
+	    }, function(reason){
+	      // failure
+	    });
+	    ```
+	  
+	    Advanced Example
+	    --------------
+	  
+	    Synchronous Example
+	  
+	    ```javascript
+	    let author, books;
+	  
+	    try {
+	      author = findAuthor();
+	      books  = findBooksByAuthor(author);
+	      // success
+	    } catch(reason) {
+	      // failure
+	    }
+	    ```
+	  
+	    Errback Example
+	  
+	    ```js
+	  
+	    function foundBooks(books) {
+	  
+	    }
+	  
+	    function failure(reason) {
+	  
+	    }
+	  
+	    findAuthor(function(author, err){
+	      if (err) {
+	        failure(err);
+	        // failure
+	      } else {
+	        try {
+	          findBoooksByAuthor(author, function(books, err) {
+	            if (err) {
+	              failure(err);
+	            } else {
+	              try {
+	                foundBooks(books);
+	              } catch(reason) {
+	                failure(reason);
+	              }
+	            }
+	          });
+	        } catch(error) {
+	          failure(err);
+	        }
+	        // success
+	      }
+	    });
+	    ```
+	  
+	    Promise Example;
+	  
+	    ```javascript
+	    findAuthor().
+	      then(findBooksByAuthor).
+	      then(function(books){
+	        // found books
+	    }).catch(function(reason){
+	      // something went wrong
+	    });
+	    ```
+	  
+	    @method then
+	    @param {Function} onFulfilled
+	    @param {Function} onRejected
+	    Useful for tooling.
+	    @return {Promise}
+	  */
+	  then: then,
+
+	  /**
+	    `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
+	    as the catch block of a try/catch statement.
+	  
+	    ```js
+	    function findAuthor(){
+	      throw new Error('couldn't find that author');
+	    }
+	  
+	    // synchronous
+	    try {
+	      findAuthor();
+	    } catch(reason) {
+	      // something went wrong
+	    }
+	  
+	    // async with promises
+	    findAuthor().catch(function(reason){
+	      // something went wrong
+	    });
+	    ```
+	  
+	    @method catch
+	    @param {Function} onRejection
+	    Useful for tooling.
+	    @return {Promise}
+	  */
+	  'catch': function _catch(onRejection) {
+	    return this.then(null, onRejection);
+	  }
+	};
+
+	function polyfill() {
+	    var local = undefined;
+
+	    if (typeof global !== 'undefined') {
+	        local = global;
+	    } else if (typeof self !== 'undefined') {
+	        local = self;
+	    } else {
+	        try {
+	            local = Function('return this')();
+	        } catch (e) {
+	            throw new Error('polyfill failed because global object is unavailable in this environment');
+	        }
+	    }
+
+	    var P = local.Promise;
+
+	    if (P) {
+	        var promiseToString = null;
+	        try {
+	            promiseToString = Object.prototype.toString.call(P.resolve());
+	        } catch (e) {
+	            // silently ignored
+	        }
+
+	        if (promiseToString === '[object Promise]' && !P.cast) {
+	            return;
+	        }
+	    }
+
+	    local.Promise = Promise;
+	}
+
+	polyfill();
+	// Strange compat..
+	Promise.polyfill = polyfill;
+	Promise.Promise = Promise;
+
+	return Promise;
+
+	})));
+	//# sourceMappingURL=es6-promise.map
+
+/***/ },
+/* 294 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.USER = undefined;
+	exports.GET = GET;
+	exports.PUT = PUT;
+	exports.POST = POST;
+	exports.DELETE = DELETE;
 
-	var _keymirror = __webpack_require__(294);
+	var _axios = __webpack_require__(295);
+
+	var _axios2 = _interopRequireDefault(_axios);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var apiUrl = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3000/api';
+
+	function GET(endpoint) {
+	  return _axios2.default.get(endpoint);
+	}
+
+	function PUT(endpoint, obj, token) {
+	  var requestObj = Object.assign({
+	    method: 'PUT',
+	    url: '/' + endpoint,
+	    credentials: 'include',
+	    headers: {
+	      'Accept': 'application/json',
+	      'Content-Type': 'application/json'
+	    }
+	  }, obj);
+
+	  return (0, _axios2.default)(requestObj);
+	}
+
+	function POST(endpoint, obj) {
+	  var requestObj = Object.assign({
+	    method: 'POST',
+	    url: apiUrl + '/' + endpoint,
+	    credentials: 'include',
+	    headers: {
+	      'Accept': 'application/json',
+	      'Content-Type': 'application/json'
+	    }
+	  }, obj);
+
+	  return (0, _axios2.default)(requestObj);
+	}
+
+	function DELETE(endpoint, obj, token) {
+	  var requestObj = Object.assign({
+	    method: 'DELETE',
+	    url: '/' + endpoint,
+	    credentials: 'include',
+	    headers: {
+	      'Accept': 'application/json',
+	      'Content-Type': 'application/json'
+	    }
+	  }, obj);
+
+	  return (0, _axios2.default)(requestObj);
+	}
+
+/***/ },
+/* 295 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(296);
+
+/***/ },
+/* 296 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(297);
+	var bind = __webpack_require__(298);
+	var Axios = __webpack_require__(299);
+
+	/**
+	 * Create an instance of Axios
+	 *
+	 * @param {Object} defaultConfig The default config for the instance
+	 * @return {Axios} A new instance of Axios
+	 */
+	function createInstance(defaultConfig) {
+	  var context = new Axios(defaultConfig);
+	  var instance = bind(Axios.prototype.request, context);
+
+	  // Copy axios.prototype to instance
+	  utils.extend(instance, Axios.prototype, context);
+
+	  // Copy context to instance
+	  utils.extend(instance, context);
+
+	  return instance;
+	}
+
+	// Create the default instance to be exported
+	var axios = createInstance();
+
+	// Expose Axios class to allow class inheritance
+	axios.Axios = Axios;
+
+	// Factory for creating new instances
+	axios.create = function create(defaultConfig) {
+	  return createInstance(defaultConfig);
+	};
+
+	// Expose all/spread
+	axios.all = function all(promises) {
+	  return Promise.all(promises);
+	};
+	axios.spread = __webpack_require__(336);
+
+	module.exports = axios;
+
+	// Allow use of default import syntax in TypeScript
+	module.exports.default = axios;
+
+
+/***/ },
+/* 297 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var bind = __webpack_require__(298);
+
+	/*global toString:true*/
+
+	// utils is a library of generic helper functions non-specific to axios
+
+	var toString = Object.prototype.toString;
+
+	/**
+	 * Determine if a value is an Array
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is an Array, otherwise false
+	 */
+	function isArray(val) {
+	  return toString.call(val) === '[object Array]';
+	}
+
+	/**
+	 * Determine if a value is an ArrayBuffer
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is an ArrayBuffer, otherwise false
+	 */
+	function isArrayBuffer(val) {
+	  return toString.call(val) === '[object ArrayBuffer]';
+	}
+
+	/**
+	 * Determine if a value is a FormData
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is an FormData, otherwise false
+	 */
+	function isFormData(val) {
+	  return (typeof FormData !== 'undefined') && (val instanceof FormData);
+	}
+
+	/**
+	 * Determine if a value is a view on an ArrayBuffer
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
+	 */
+	function isArrayBufferView(val) {
+	  var result;
+	  if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
+	    result = ArrayBuffer.isView(val);
+	  } else {
+	    result = (val) && (val.buffer) && (val.buffer instanceof ArrayBuffer);
+	  }
+	  return result;
+	}
+
+	/**
+	 * Determine if a value is a String
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a String, otherwise false
+	 */
+	function isString(val) {
+	  return typeof val === 'string';
+	}
+
+	/**
+	 * Determine if a value is a Number
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a Number, otherwise false
+	 */
+	function isNumber(val) {
+	  return typeof val === 'number';
+	}
+
+	/**
+	 * Determine if a value is undefined
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if the value is undefined, otherwise false
+	 */
+	function isUndefined(val) {
+	  return typeof val === 'undefined';
+	}
+
+	/**
+	 * Determine if a value is an Object
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is an Object, otherwise false
+	 */
+	function isObject(val) {
+	  return val !== null && typeof val === 'object';
+	}
+
+	/**
+	 * Determine if a value is a Date
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a Date, otherwise false
+	 */
+	function isDate(val) {
+	  return toString.call(val) === '[object Date]';
+	}
+
+	/**
+	 * Determine if a value is a File
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a File, otherwise false
+	 */
+	function isFile(val) {
+	  return toString.call(val) === '[object File]';
+	}
+
+	/**
+	 * Determine if a value is a Blob
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a Blob, otherwise false
+	 */
+	function isBlob(val) {
+	  return toString.call(val) === '[object Blob]';
+	}
+
+	/**
+	 * Determine if a value is a Function
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a Function, otherwise false
+	 */
+	function isFunction(val) {
+	  return toString.call(val) === '[object Function]';
+	}
+
+	/**
+	 * Determine if a value is a Stream
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a Stream, otherwise false
+	 */
+	function isStream(val) {
+	  return isObject(val) && isFunction(val.pipe);
+	}
+
+	/**
+	 * Determine if a value is a URLSearchParams object
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a URLSearchParams object, otherwise false
+	 */
+	function isURLSearchParams(val) {
+	  return typeof URLSearchParams !== 'undefined' && val instanceof URLSearchParams;
+	}
+
+	/**
+	 * Trim excess whitespace off the beginning and end of a string
+	 *
+	 * @param {String} str The String to trim
+	 * @returns {String} The String freed of excess whitespace
+	 */
+	function trim(str) {
+	  return str.replace(/^\s*/, '').replace(/\s*$/, '');
+	}
+
+	/**
+	 * Determine if we're running in a standard browser environment
+	 *
+	 * This allows axios to run in a web worker, and react-native.
+	 * Both environments support XMLHttpRequest, but not fully standard globals.
+	 *
+	 * web workers:
+	 *  typeof window -> undefined
+	 *  typeof document -> undefined
+	 *
+	 * react-native:
+	 *  typeof document.createElement -> undefined
+	 */
+	function isStandardBrowserEnv() {
+	  return (
+	    typeof window !== 'undefined' &&
+	    typeof document !== 'undefined' &&
+	    typeof document.createElement === 'function'
+	  );
+	}
+
+	/**
+	 * Iterate over an Array or an Object invoking a function for each item.
+	 *
+	 * If `obj` is an Array callback will be called passing
+	 * the value, index, and complete array for each item.
+	 *
+	 * If 'obj' is an Object callback will be called passing
+	 * the value, key, and complete object for each property.
+	 *
+	 * @param {Object|Array} obj The object to iterate
+	 * @param {Function} fn The callback to invoke for each item
+	 */
+	function forEach(obj, fn) {
+	  // Don't bother if no value provided
+	  if (obj === null || typeof obj === 'undefined') {
+	    return;
+	  }
+
+	  // Force an array if not already something iterable
+	  if (typeof obj !== 'object' && !isArray(obj)) {
+	    /*eslint no-param-reassign:0*/
+	    obj = [obj];
+	  }
+
+	  if (isArray(obj)) {
+	    // Iterate over array values
+	    for (var i = 0, l = obj.length; i < l; i++) {
+	      fn.call(null, obj[i], i, obj);
+	    }
+	  } else {
+	    // Iterate over object keys
+	    for (var key in obj) {
+	      if (obj.hasOwnProperty(key)) {
+	        fn.call(null, obj[key], key, obj);
+	      }
+	    }
+	  }
+	}
+
+	/**
+	 * Accepts varargs expecting each argument to be an object, then
+	 * immutably merges the properties of each object and returns result.
+	 *
+	 * When multiple objects contain the same key the later object in
+	 * the arguments list will take precedence.
+	 *
+	 * Example:
+	 *
+	 * ```js
+	 * var result = merge({foo: 123}, {foo: 456});
+	 * console.log(result.foo); // outputs 456
+	 * ```
+	 *
+	 * @param {Object} obj1 Object to merge
+	 * @returns {Object} Result of all merge properties
+	 */
+	function merge(/* obj1, obj2, obj3, ... */) {
+	  var result = {};
+	  function assignValue(val, key) {
+	    if (typeof result[key] === 'object' && typeof val === 'object') {
+	      result[key] = merge(result[key], val);
+	    } else {
+	      result[key] = val;
+	    }
+	  }
+
+	  for (var i = 0, l = arguments.length; i < l; i++) {
+	    forEach(arguments[i], assignValue);
+	  }
+	  return result;
+	}
+
+	/**
+	 * Extends object a by mutably adding to it the properties of object b.
+	 *
+	 * @param {Object} a The object to be extended
+	 * @param {Object} b The object to copy properties from
+	 * @param {Object} thisArg The object to bind function to
+	 * @return {Object} The resulting value of object a
+	 */
+	function extend(a, b, thisArg) {
+	  forEach(b, function assignValue(val, key) {
+	    if (thisArg && typeof val === 'function') {
+	      a[key] = bind(val, thisArg);
+	    } else {
+	      a[key] = val;
+	    }
+	  });
+	  return a;
+	}
+
+	module.exports = {
+	  isArray: isArray,
+	  isArrayBuffer: isArrayBuffer,
+	  isFormData: isFormData,
+	  isArrayBufferView: isArrayBufferView,
+	  isString: isString,
+	  isNumber: isNumber,
+	  isObject: isObject,
+	  isUndefined: isUndefined,
+	  isDate: isDate,
+	  isFile: isFile,
+	  isBlob: isBlob,
+	  isFunction: isFunction,
+	  isStream: isStream,
+	  isURLSearchParams: isURLSearchParams,
+	  isStandardBrowserEnv: isStandardBrowserEnv,
+	  forEach: forEach,
+	  merge: merge,
+	  extend: extend,
+	  trim: trim
+	};
+
+
+/***/ },
+/* 298 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	module.exports = function bind(fn, thisArg) {
+	  return function wrap() {
+	    var args = new Array(arguments.length);
+	    for (var i = 0; i < args.length; i++) {
+	      args[i] = arguments[i];
+	    }
+	    return fn.apply(thisArg, args);
+	  };
+	};
+
+
+/***/ },
+/* 299 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var defaults = __webpack_require__(300);
+	var utils = __webpack_require__(297);
+	var InterceptorManager = __webpack_require__(302);
+	var dispatchRequest = __webpack_require__(303);
+	var isAbsoluteURL = __webpack_require__(334);
+	var combineURLs = __webpack_require__(335);
+
+	/**
+	 * Create a new instance of Axios
+	 *
+	 * @param {Object} defaultConfig The default config for the instance
+	 */
+	function Axios(defaultConfig) {
+	  this.defaults = utils.merge(defaults, defaultConfig);
+	  this.interceptors = {
+	    request: new InterceptorManager(),
+	    response: new InterceptorManager()
+	  };
+	}
+
+	/**
+	 * Dispatch a request
+	 *
+	 * @param {Object} config The config specific for this request (merged with this.defaults)
+	 */
+	Axios.prototype.request = function request(config) {
+	  /*eslint no-param-reassign:0*/
+	  // Allow for axios('example/url'[, config]) a la fetch API
+	  if (typeof config === 'string') {
+	    config = utils.merge({
+	      url: arguments[0]
+	    }, arguments[1]);
+	  }
+
+	  config = utils.merge(defaults, this.defaults, { method: 'get' }, config);
+
+	  // Support baseURL config
+	  if (config.baseURL && !isAbsoluteURL(config.url)) {
+	    config.url = combineURLs(config.baseURL, config.url);
+	  }
+
+	  // Hook up interceptors middleware
+	  var chain = [dispatchRequest, undefined];
+	  var promise = Promise.resolve(config);
+
+	  this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
+	    chain.unshift(interceptor.fulfilled, interceptor.rejected);
+	  });
+
+	  this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
+	    chain.push(interceptor.fulfilled, interceptor.rejected);
+	  });
+
+	  while (chain.length) {
+	    promise = promise.then(chain.shift(), chain.shift());
+	  }
+
+	  return promise;
+	};
+
+	// Provide aliases for supported request methods
+	utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
+	  /*eslint func-names:0*/
+	  Axios.prototype[method] = function(url, config) {
+	    return this.request(utils.merge(config || {}, {
+	      method: method,
+	      url: url
+	    }));
+	  };
+	});
+
+	utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+	  /*eslint func-names:0*/
+	  Axios.prototype[method] = function(url, data, config) {
+	    return this.request(utils.merge(config || {}, {
+	      method: method,
+	      url: url,
+	      data: data
+	    }));
+	  };
+	});
+
+	module.exports = Axios;
+
+
+/***/ },
+/* 300 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(297);
+	var normalizeHeaderName = __webpack_require__(301);
+
+	var PROTECTION_PREFIX = /^\)\]\}',?\n/;
+	var DEFAULT_CONTENT_TYPE = {
+	  'Content-Type': 'application/x-www-form-urlencoded'
+	};
+
+	function setContentTypeIfUnset(headers, value) {
+	  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
+	    headers['Content-Type'] = value;
+	  }
+	}
+
+	module.exports = {
+	  transformRequest: [function transformRequest(data, headers) {
+	    normalizeHeaderName(headers, 'Content-Type');
+	    if (utils.isFormData(data) ||
+	      utils.isArrayBuffer(data) ||
+	      utils.isStream(data) ||
+	      utils.isFile(data) ||
+	      utils.isBlob(data)
+	    ) {
+	      return data;
+	    }
+	    if (utils.isArrayBufferView(data)) {
+	      return data.buffer;
+	    }
+	    if (utils.isURLSearchParams(data)) {
+	      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
+	      return data.toString();
+	    }
+	    if (utils.isObject(data)) {
+	      setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
+	      return JSON.stringify(data);
+	    }
+	    return data;
+	  }],
+
+	  transformResponse: [function transformResponse(data) {
+	    /*eslint no-param-reassign:0*/
+	    if (typeof data === 'string') {
+	      data = data.replace(PROTECTION_PREFIX, '');
+	      try {
+	        data = JSON.parse(data);
+	      } catch (e) { /* Ignore */ }
+	    }
+	    return data;
+	  }],
+
+	  headers: {
+	    common: {
+	      'Accept': 'application/json, text/plain, */*'
+	    },
+	    patch: utils.merge(DEFAULT_CONTENT_TYPE),
+	    post: utils.merge(DEFAULT_CONTENT_TYPE),
+	    put: utils.merge(DEFAULT_CONTENT_TYPE)
+	  },
+
+	  timeout: 0,
+
+	  xsrfCookieName: 'XSRF-TOKEN',
+	  xsrfHeaderName: 'X-XSRF-TOKEN',
+
+	  maxContentLength: -1,
+
+	  validateStatus: function validateStatus(status) {
+	    return status >= 200 && status < 300;
+	  }
+	};
+
+
+/***/ },
+/* 301 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(297);
+
+	module.exports = function normalizeHeaderName(headers, normalizedName) {
+	  utils.forEach(headers, function processHeader(value, name) {
+	    if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
+	      headers[normalizedName] = value;
+	      delete headers[name];
+	    }
+	  });
+	};
+
+
+/***/ },
+/* 302 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(297);
+
+	function InterceptorManager() {
+	  this.handlers = [];
+	}
+
+	/**
+	 * Add a new interceptor to the stack
+	 *
+	 * @param {Function} fulfilled The function to handle `then` for a `Promise`
+	 * @param {Function} rejected The function to handle `reject` for a `Promise`
+	 *
+	 * @return {Number} An ID used to remove interceptor later
+	 */
+	InterceptorManager.prototype.use = function use(fulfilled, rejected) {
+	  this.handlers.push({
+	    fulfilled: fulfilled,
+	    rejected: rejected
+	  });
+	  return this.handlers.length - 1;
+	};
+
+	/**
+	 * Remove an interceptor from the stack
+	 *
+	 * @param {Number} id The ID that was returned by `use`
+	 */
+	InterceptorManager.prototype.eject = function eject(id) {
+	  if (this.handlers[id]) {
+	    this.handlers[id] = null;
+	  }
+	};
+
+	/**
+	 * Iterate over all the registered interceptors
+	 *
+	 * This method is particularly useful for skipping over any
+	 * interceptors that may have become `null` calling `eject`.
+	 *
+	 * @param {Function} fn The function to call for each interceptor
+	 */
+	InterceptorManager.prototype.forEach = function forEach(fn) {
+	  utils.forEach(this.handlers, function forEachHandler(h) {
+	    if (h !== null) {
+	      fn(h);
+	    }
+	  });
+	};
+
+	module.exports = InterceptorManager;
+
+
+/***/ },
+/* 303 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(297);
+	var transformData = __webpack_require__(304);
+
+	/**
+	 * Dispatch a request to the server using whichever adapter
+	 * is supported by the current environment.
+	 *
+	 * @param {object} config The config that is to be used for the request
+	 * @returns {Promise} The Promise to be fulfilled
+	 */
+	module.exports = function dispatchRequest(config) {
+	  // Ensure headers exist
+	  config.headers = config.headers || {};
+
+	  // Transform request data
+	  config.data = transformData(
+	    config.data,
+	    config.headers,
+	    config.transformRequest
+	  );
+
+	  // Flatten headers
+	  config.headers = utils.merge(
+	    config.headers.common || {},
+	    config.headers[config.method] || {},
+	    config.headers || {}
+	  );
+
+	  utils.forEach(
+	    ['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
+	    function cleanHeaderConfig(method) {
+	      delete config.headers[method];
+	    }
+	  );
+
+	  var adapter;
+
+	  if (typeof config.adapter === 'function') {
+	    // For custom adapter support
+	    adapter = config.adapter;
+	  } else if (typeof XMLHttpRequest !== 'undefined') {
+	    // For browsers use XHR adapter
+	    adapter = __webpack_require__(305);
+	  } else if (typeof process !== 'undefined') {
+	    // For node use HTTP adapter
+	    adapter = __webpack_require__(314);
+	  }
+
+	  return Promise.resolve(config)
+	    // Wrap synchronous adapter errors and pass configuration
+	    .then(adapter)
+	    .then(function onFulfilled(response) {
+	      // Transform response data
+	      response.data = transformData(
+	        response.data,
+	        response.headers,
+	        config.transformResponse
+	      );
+
+	      return response;
+	    }, function onRejected(error) {
+	      // Transform response data
+	      if (error && error.response) {
+	        error.response.data = transformData(
+	          error.response.data,
+	          error.response.headers,
+	          config.transformResponse
+	        );
+	      }
+
+	      return Promise.reject(error);
+	    });
+	};
+
+
+/***/ },
+/* 304 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(297);
+
+	/**
+	 * Transform the data for a request or a response
+	 *
+	 * @param {Object|String} data The data to be transformed
+	 * @param {Array} headers The headers for the request or response
+	 * @param {Array|Function} fns A single function or Array of functions
+	 * @returns {*} The resulting transformed data
+	 */
+	module.exports = function transformData(data, headers, fns) {
+	  /*eslint no-param-reassign:0*/
+	  utils.forEach(fns, function transform(fn) {
+	    data = fn(data, headers);
+	  });
+
+	  return data;
+	};
+
+
+/***/ },
+/* 305 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(297);
+	var settle = __webpack_require__(306);
+	var buildURL = __webpack_require__(309);
+	var parseHeaders = __webpack_require__(310);
+	var isURLSameOrigin = __webpack_require__(311);
+	var createError = __webpack_require__(307);
+	var btoa = (typeof window !== 'undefined' && window.btoa) || __webpack_require__(312);
+
+	module.exports = function xhrAdapter(config) {
+	  return new Promise(function dispatchXhrRequest(resolve, reject) {
+	    var requestData = config.data;
+	    var requestHeaders = config.headers;
+
+	    if (utils.isFormData(requestData)) {
+	      delete requestHeaders['Content-Type']; // Let the browser set it
+	    }
+
+	    var request = new XMLHttpRequest();
+	    var loadEvent = 'onreadystatechange';
+	    var xDomain = false;
+
+	    // For IE 8/9 CORS support
+	    // Only supports POST and GET calls and doesn't returns the response headers.
+	    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
+	    if (process.env.NODE_ENV !== 'test' &&
+	        typeof window !== 'undefined' &&
+	        window.XDomainRequest && !('withCredentials' in request) &&
+	        !isURLSameOrigin(config.url)) {
+	      request = new window.XDomainRequest();
+	      loadEvent = 'onload';
+	      xDomain = true;
+	      request.onprogress = function handleProgress() {};
+	      request.ontimeout = function handleTimeout() {};
+	    }
+
+	    // HTTP basic authentication
+	    if (config.auth) {
+	      var username = config.auth.username || '';
+	      var password = config.auth.password || '';
+	      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
+	    }
+
+	    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
+
+	    // Set the request timeout in MS
+	    request.timeout = config.timeout;
+
+	    // Listen for ready state
+	    request[loadEvent] = function handleLoad() {
+	      if (!request || (request.readyState !== 4 && !xDomain)) {
+	        return;
+	      }
+
+	      // The request errored out and we didn't get a response, this will be
+	      // handled by onerror instead
+	      if (request.status === 0) {
+	        return;
+	      }
+
+	      // Prepare the response
+	      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
+	      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
+	      var response = {
+	        data: responseData,
+	        // IE sends 1223 instead of 204 (https://github.com/mzabriskie/axios/issues/201)
+	        status: request.status === 1223 ? 204 : request.status,
+	        statusText: request.status === 1223 ? 'No Content' : request.statusText,
+	        headers: responseHeaders,
+	        config: config,
+	        request: request
+	      };
+
+	      settle(resolve, reject, response);
+
+	      // Clean up request
+	      request = null;
+	    };
+
+	    // Handle low level network errors
+	    request.onerror = function handleError() {
+	      // Real errors are hidden from us by the browser
+	      // onerror should only fire if it's a network error
+	      reject(createError('Network Error', config));
+
+	      // Clean up request
+	      request = null;
+	    };
+
+	    // Handle timeout
+	    request.ontimeout = function handleTimeout() {
+	      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED'));
+
+	      // Clean up request
+	      request = null;
+	    };
+
+	    // Add xsrf header
+	    // This is only done if running in a standard browser environment.
+	    // Specifically not if we're in a web worker, or react-native.
+	    if (utils.isStandardBrowserEnv()) {
+	      var cookies = __webpack_require__(313);
+
+	      // Add xsrf header
+	      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
+	          cookies.read(config.xsrfCookieName) :
+	          undefined;
+
+	      if (xsrfValue) {
+	        requestHeaders[config.xsrfHeaderName] = xsrfValue;
+	      }
+	    }
+
+	    // Add headers to the request
+	    if ('setRequestHeader' in request) {
+	      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+	        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
+	          // Remove Content-Type if data is undefined
+	          delete requestHeaders[key];
+	        } else {
+	          // Otherwise add header to the request
+	          request.setRequestHeader(key, val);
+	        }
+	      });
+	    }
+
+	    // Add withCredentials to request if needed
+	    if (config.withCredentials) {
+	      request.withCredentials = true;
+	    }
+
+	    // Add responseType to request if needed
+	    if (config.responseType) {
+	      try {
+	        request.responseType = config.responseType;
+	      } catch (e) {
+	        if (request.responseType !== 'json') {
+	          throw e;
+	        }
+	      }
+	    }
+
+	    // Handle progress if needed
+	    if (typeof config.onDownloadProgress === 'function') {
+	      request.addEventListener('progress', config.onDownloadProgress);
+	    }
+
+	    // Not all browsers support upload events
+	    if (typeof config.onUploadProgress === 'function' && request.upload) {
+	      request.upload.addEventListener('progress', config.onUploadProgress);
+	    }
+
+
+	    if (requestData === undefined) {
+	      requestData = null;
+	    }
+
+	    // Send the request
+	    request.send(requestData);
+	  });
+	};
+
+
+/***/ },
+/* 306 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var createError = __webpack_require__(307);
+
+	/**
+	 * Resolve or reject a Promise based on response status.
+	 *
+	 * @param {Function} resolve A function that resolves the promise.
+	 * @param {Function} reject A function that rejects the promise.
+	 * @param {object} response The response.
+	 */
+	module.exports = function settle(resolve, reject, response) {
+	  var validateStatus = response.config.validateStatus;
+	  // Note: status is not exposed by XDomainRequest
+	  if (!response.status || !validateStatus || validateStatus(response.status)) {
+	    resolve(response);
+	  } else {
+	    reject(createError(
+	      'Request failed with status code ' + response.status,
+	      response.config,
+	      null,
+	      response
+	    ));
+	  }
+	};
+
+
+/***/ },
+/* 307 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var enhanceError = __webpack_require__(308);
+
+	/**
+	 * Create an Error with the specified message, config, error code, and response.
+	 *
+	 * @param {string} message The error message.
+	 * @param {Object} config The config.
+	 * @param {string} [code] The error code (for example, 'ECONNABORTED').
+	 @ @param {Object} [response] The response.
+	 * @returns {Error} The created error.
+	 */
+	module.exports = function createError(message, config, code, response) {
+	  var error = new Error(message);
+	  return enhanceError(error, config, code, response);
+	};
+
+
+/***/ },
+/* 308 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	/**
+	 * Update an Error with the specified config, error code, and response.
+	 *
+	 * @param {Error} error The error to update.
+	 * @param {Object} config The config.
+	 * @param {string} [code] The error code (for example, 'ECONNABORTED').
+	 @ @param {Object} [response] The response.
+	 * @returns {Error} The error.
+	 */
+	module.exports = function enhanceError(error, config, code, response) {
+	  error.config = config;
+	  if (code) {
+	    error.code = code;
+	  }
+	  error.response = response;
+	  return error;
+	};
+
+
+/***/ },
+/* 309 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(297);
+
+	function encode(val) {
+	  return encodeURIComponent(val).
+	    replace(/%40/gi, '@').
+	    replace(/%3A/gi, ':').
+	    replace(/%24/g, '$').
+	    replace(/%2C/gi, ',').
+	    replace(/%20/g, '+').
+	    replace(/%5B/gi, '[').
+	    replace(/%5D/gi, ']');
+	}
+
+	/**
+	 * Build a URL by appending params to the end
+	 *
+	 * @param {string} url The base of the url (e.g., http://www.google.com)
+	 * @param {object} [params] The params to be appended
+	 * @returns {string} The formatted url
+	 */
+	module.exports = function buildURL(url, params, paramsSerializer) {
+	  /*eslint no-param-reassign:0*/
+	  if (!params) {
+	    return url;
+	  }
+
+	  var serializedParams;
+	  if (paramsSerializer) {
+	    serializedParams = paramsSerializer(params);
+	  } else if (utils.isURLSearchParams(params)) {
+	    serializedParams = params.toString();
+	  } else {
+	    var parts = [];
+
+	    utils.forEach(params, function serialize(val, key) {
+	      if (val === null || typeof val === 'undefined') {
+	        return;
+	      }
+
+	      if (utils.isArray(val)) {
+	        key = key + '[]';
+	      }
+
+	      if (!utils.isArray(val)) {
+	        val = [val];
+	      }
+
+	      utils.forEach(val, function parseValue(v) {
+	        if (utils.isDate(v)) {
+	          v = v.toISOString();
+	        } else if (utils.isObject(v)) {
+	          v = JSON.stringify(v);
+	        }
+	        parts.push(encode(key) + '=' + encode(v));
+	      });
+	    });
+
+	    serializedParams = parts.join('&');
+	  }
+
+	  if (serializedParams) {
+	    url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
+	  }
+
+	  return url;
+	};
+
+
+/***/ },
+/* 310 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(297);
+
+	/**
+	 * Parse headers into an object
+	 *
+	 * ```
+	 * Date: Wed, 27 Aug 2014 08:58:49 GMT
+	 * Content-Type: application/json
+	 * Connection: keep-alive
+	 * Transfer-Encoding: chunked
+	 * ```
+	 *
+	 * @param {String} headers Headers needing to be parsed
+	 * @returns {Object} Headers parsed into an object
+	 */
+	module.exports = function parseHeaders(headers) {
+	  var parsed = {};
+	  var key;
+	  var val;
+	  var i;
+
+	  if (!headers) { return parsed; }
+
+	  utils.forEach(headers.split('\n'), function parser(line) {
+	    i = line.indexOf(':');
+	    key = utils.trim(line.substr(0, i)).toLowerCase();
+	    val = utils.trim(line.substr(i + 1));
+
+	    if (key) {
+	      parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+	    }
+	  });
+
+	  return parsed;
+	};
+
+
+/***/ },
+/* 311 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(297);
+
+	module.exports = (
+	  utils.isStandardBrowserEnv() ?
+
+	  // Standard browser envs have full support of the APIs needed to test
+	  // whether the request URL is of the same origin as current location.
+	  (function standardBrowserEnv() {
+	    var msie = /(msie|trident)/i.test(navigator.userAgent);
+	    var urlParsingNode = document.createElement('a');
+	    var originURL;
+
+	    /**
+	    * Parse a URL to discover it's components
+	    *
+	    * @param {String} url The URL to be parsed
+	    * @returns {Object}
+	    */
+	    function resolveURL(url) {
+	      var href = url;
+
+	      if (msie) {
+	        // IE needs attribute set twice to normalize properties
+	        urlParsingNode.setAttribute('href', href);
+	        href = urlParsingNode.href;
+	      }
+
+	      urlParsingNode.setAttribute('href', href);
+
+	      // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
+	      return {
+	        href: urlParsingNode.href,
+	        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
+	        host: urlParsingNode.host,
+	        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
+	        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
+	        hostname: urlParsingNode.hostname,
+	        port: urlParsingNode.port,
+	        pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
+	                  urlParsingNode.pathname :
+	                  '/' + urlParsingNode.pathname
+	      };
+	    }
+
+	    originURL = resolveURL(window.location.href);
+
+	    /**
+	    * Determine if a URL shares the same origin as the current location
+	    *
+	    * @param {String} requestURL The URL to test
+	    * @returns {boolean} True if URL shares the same origin, otherwise false
+	    */
+	    return function isURLSameOrigin(requestURL) {
+	      var parsed = (utils.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
+	      return (parsed.protocol === originURL.protocol &&
+	            parsed.host === originURL.host);
+	    };
+	  })() :
+
+	  // Non standard browser envs (web workers, react-native) lack needed support.
+	  (function nonStandardBrowserEnv() {
+	    return function isURLSameOrigin() {
+	      return true;
+	    };
+	  })()
+	);
+
+
+/***/ },
+/* 312 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	// btoa polyfill for IE<10 courtesy https://github.com/davidchambers/Base64.js
+
+	var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+	function E() {
+	  this.message = 'String contains an invalid character';
+	}
+	E.prototype = new Error;
+	E.prototype.code = 5;
+	E.prototype.name = 'InvalidCharacterError';
+
+	function btoa(input) {
+	  var str = String(input);
+	  var output = '';
+	  for (
+	    // initialize result and counter
+	    var block, charCode, idx = 0, map = chars;
+	    // if the next str index does not exist:
+	    //   change the mapping table to "="
+	    //   check if d has no fractional digits
+	    str.charAt(idx | 0) || (map = '=', idx % 1);
+	    // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
+	    output += map.charAt(63 & block >> 8 - idx % 1 * 8)
+	  ) {
+	    charCode = str.charCodeAt(idx += 3 / 4);
+	    if (charCode > 0xFF) {
+	      throw new E();
+	    }
+	    block = block << 8 | charCode;
+	  }
+	  return output;
+	}
+
+	module.exports = btoa;
+
+
+/***/ },
+/* 313 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(297);
+
+	module.exports = (
+	  utils.isStandardBrowserEnv() ?
+
+	  // Standard browser envs support document.cookie
+	  (function standardBrowserEnv() {
+	    return {
+	      write: function write(name, value, expires, path, domain, secure) {
+	        var cookie = [];
+	        cookie.push(name + '=' + encodeURIComponent(value));
+
+	        if (utils.isNumber(expires)) {
+	          cookie.push('expires=' + new Date(expires).toGMTString());
+	        }
+
+	        if (utils.isString(path)) {
+	          cookie.push('path=' + path);
+	        }
+
+	        if (utils.isString(domain)) {
+	          cookie.push('domain=' + domain);
+	        }
+
+	        if (secure === true) {
+	          cookie.push('secure');
+	        }
+
+	        document.cookie = cookie.join('; ');
+	      },
+
+	      read: function read(name) {
+	        var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+	        return (match ? decodeURIComponent(match[3]) : null);
+	      },
+
+	      remove: function remove(name) {
+	        this.write(name, '', Date.now() - 86400000);
+	      }
+	    };
+	  })() :
+
+	  // Non standard browser env (web workers, react-native) lack needed support.
+	  (function nonStandardBrowserEnv() {
+	    return {
+	      write: function write() {},
+	      read: function read() { return null; },
+	      remove: function remove() {}
+	    };
+	  })()
+	);
+
+
+/***/ },
+/* 314 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(297);
+	var settle = __webpack_require__(306);
+	var buildURL = __webpack_require__(309);
+	var http = __webpack_require__(315);
+	var https = __webpack_require__(316);
+	var httpFollow = __webpack_require__(317).http;
+	var httpsFollow = __webpack_require__(317).https;
+	var url = __webpack_require__(319);
+	var zlib = __webpack_require__(331);
+	var pkg = __webpack_require__(332);
+	var Buffer = __webpack_require__(333).Buffer;
+	var createError = __webpack_require__(307);
+	var enhanceError = __webpack_require__(308);
+
+	/*eslint consistent-return:0*/
+	module.exports = function httpAdapter(config) {
+	  return new Promise(function dispatchHttpRequest(resolve, reject) {
+	    var data = config.data;
+	    var headers = config.headers;
+	    var timer;
+	    var aborted = false;
+
+	    // Set User-Agent (required by some servers)
+	    // Only set header if it hasn't been set in config
+	    // See https://github.com/mzabriskie/axios/issues/69
+	    if (!headers['User-Agent'] && !headers['user-agent']) {
+	      headers['User-Agent'] = 'axios/' + pkg.version;
+	    }
+
+	    if (data && !utils.isStream(data)) {
+	      if (utils.isArrayBuffer(data)) {
+	        data = new Buffer(new Uint8Array(data));
+	      } else if (utils.isString(data)) {
+	        data = new Buffer(data, 'utf-8');
+	      } else {
+	        return reject(createError(
+	          'Data after transformation must be a string, an ArrayBuffer, or a Stream',
+	          config
+	        ));
+	      }
+
+	      // Add Content-Length header if data exists
+	      headers['Content-Length'] = data.length;
+	    }
+
+	    // HTTP basic authentication
+	    var auth = undefined;
+	    if (config.auth) {
+	      var username = config.auth.username || '';
+	      var password = config.auth.password || '';
+	      auth = username + ':' + password;
+	    }
+
+	    // Parse url
+	    var parsed = url.parse(config.url);
+	    if (!auth && parsed.auth) {
+	      var urlAuth = parsed.auth.split(':');
+	      var urlUsername = urlAuth[0] || '';
+	      var urlPassword = urlAuth[1] || '';
+	      auth = urlUsername + ':' + urlPassword;
+	    }
+
+	    if (auth) {
+	      delete headers.Authorization;
+	    }
+
+	    var isHttps = parsed.protocol === 'https:';
+	    var agent = isHttps ? config.httpsAgent : config.httpAgent;
+
+	    var options = {
+	      hostname: parsed.hostname,
+	      port: parsed.port,
+	      path: buildURL(parsed.path, config.params, config.paramsSerializer).replace(/^\?/, ''),
+	      method: config.method,
+	      headers: headers,
+	      agent: agent,
+	      auth: auth
+	    };
+
+	    var proxy = config.proxy;
+	    if (!proxy) {
+	      var proxyEnv = parsed.protocol.slice(0, -1) + '_proxy';
+	      var proxyUrl = process.env[proxyEnv] || process.env[proxyEnv.toUpperCase()];
+	      if (proxyUrl) {
+	        var parsedProxyUrl = url.parse(proxyUrl);
+	        proxy = {
+	          host: parsedProxyUrl.hostname,
+	          port: parsedProxyUrl.port
+	        };
+	      }
+	    }
+
+	    if (proxy) {
+	      options.host = proxy.host;
+	      options.port = proxy.port;
+	      options.path = parsed.protocol + '//' + parsed.hostname + (parsed.port ? ':' + parsed.port : '') + options.path;
+	    }
+
+	    var transport;
+	    if (config.maxRedirects === 0) {
+	      transport = isHttps ? https : http;
+	    } else {
+	      if (config.maxRedirects) {
+	        options.maxRedirects = config.maxRedirects;
+	      }
+	      transport = isHttps ? httpsFollow : httpFollow;
+	    }
+
+	    // Create the request
+	    var req = transport.request(options, function handleResponse(res) {
+	      if (aborted) return;
+
+	      // Response has been received so kill timer that handles request timeout
+	      clearTimeout(timer);
+	      timer = null;
+
+	      // uncompress the response body transparently if required
+	      var stream = res;
+	      switch (res.headers['content-encoding']) {
+	      /*eslint default-case:0*/
+	      case 'gzip':
+	      case 'compress':
+	      case 'deflate':
+	        // add the unzipper to the body stream processing pipeline
+	        stream = stream.pipe(zlib.createUnzip());
+
+	        // remove the content-encoding in order to not confuse downstream operations
+	        delete res.headers['content-encoding'];
+	        break;
+	      }
+
+	      var response = {
+	        status: res.statusCode,
+	        statusText: res.statusMessage,
+	        headers: res.headers,
+	        config: config,
+	        request: req
+	      };
+
+	      if (config.responseType === 'stream') {
+	        response.data = stream;
+	        settle(resolve, reject, response);
+	      } else {
+	        var responseBuffer = [];
+	        stream.on('data', function handleStreamData(chunk) {
+	          responseBuffer.push(chunk);
+
+	          // make sure the content length is not over the maxContentLength if specified
+	          if (config.maxContentLength > -1 && Buffer.concat(responseBuffer).length > config.maxContentLength) {
+	            reject(createError('maxContentLength size of ' + config.maxContentLength + ' exceeded', config));
+	          }
+	        });
+
+	        stream.on('error', function handleStreamError(err) {
+	          if (aborted) return;
+	          reject(enhanceError(err, config));
+	        });
+
+	        stream.on('end', function handleStreamEnd() {
+	          var responseData = Buffer.concat(responseBuffer);
+	          if (config.responseType !== 'arraybuffer') {
+	            responseData = responseData.toString('utf8');
+	          }
+
+	          response.data = responseData;
+	          settle(resolve, reject, response);
+	        });
+	      }
+	    });
+
+	    // Handle errors
+	    req.on('error', function handleRequestError(err) {
+	      if (aborted) return;
+	      reject(enhanceError(err, config));
+	    });
+
+	    // Handle request timeout
+	    if (config.timeout && !timer) {
+	      timer = setTimeout(function handleRequestTimeout() {
+	        req.abort();
+	        reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED'));
+	        aborted = true;
+	      }, config.timeout);
+	    }
+
+	    // Send the request
+	    if (utils.isStream(data)) {
+	      data.pipe(req);
+	    } else {
+	      req.end(data);
+	    }
+	  });
+	};
+
+
+/***/ },
+/* 315 */
+/***/ function(module, exports) {
+
+	module.exports = require("http");
+
+/***/ },
+/* 316 */
+/***/ function(module, exports) {
+
+	module.exports = require("https");
+
+/***/ },
+/* 317 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(318)({
+	  'http': __webpack_require__(315),
+	  'https': __webpack_require__(316)
+	});
+
+
+/***/ },
+/* 318 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	var url = __webpack_require__(319);
+	var debug = __webpack_require__(320)('follow-redirects');
+	var assert = __webpack_require__(329);
+	var consume = __webpack_require__(330);
+
+	module.exports = function(_nativeProtocols) {
+	  var nativeProtocols = {};
+
+	  var publicApi = {
+	    maxRedirects: 5
+	  };
+
+	  for (var p in _nativeProtocols) {
+	    /* istanbul ignore else */
+	    if (_nativeProtocols.hasOwnProperty(p)) {
+	      // http://www.ietf.org/rfc/rfc2396.txt - Section 3.1
+	      assert(/^[A-Z][A-Z\+\-\.]*$/i.test(p), JSON.stringify(p) + ' is not a valid scheme name');
+	      generateWrapper(p, _nativeProtocols[p]);
+	    }
+	  }
+
+	  return publicApi;
+
+	  function execute(options) {
+	    var clientRequest;
+	    var fetchedUrls = [];
+
+	    return (clientRequest = cb());
+
+	    function cb(res) {
+	      // skip the redirection logic on the first call.
+	      if (res) {
+	        var fetchedUrl = url.format(options);
+	        fetchedUrls.unshift(fetchedUrl);
+
+	        if (!isRedirect(res)) {
+	          res.fetchedUrls = fetchedUrls;
+	          return options.userCallback(res);
+	        }
+
+	        // we are going to follow the redirect, but in node 0.10 we must first attach a data listener
+	        // to consume the stream and send the 'end' event
+	        consume(res);
+
+	        // need to use url.resolve() in case location is a relative URL
+	        var redirectUrl = url.resolve(fetchedUrl, res.headers.location);
+	        debug('redirecting to', redirectUrl);
+
+	        // clean all the properties related to the old url away, and copy from the redirect url
+	        wipeUrlProps(options);
+	        extend(options, url.parse(redirectUrl));
+	      }
+
+	      if (fetchedUrls.length > options.maxRedirects) {
+	        var err = new Error('Max redirects exceeded.');
+	        return forwardError(err);
+	      }
+
+	      options.nativeProtocol = nativeProtocols[options.protocol];
+	      options.defaultRequest = defaultMakeRequest;
+
+	      var req = (options.makeRequest || defaultMakeRequest)(options, cb, res);
+
+	      if (res) {
+	        req.on('error', forwardError);
+	      }
+	      return req;
+	    }
+
+	    function defaultMakeRequest(options, cb, res) {
+	      if (res) {
+	        // This is a redirect, so use only GET methods
+	        options.method = 'GET';
+	      }
+
+	      var req = options.nativeProtocol.request(options, cb);
+
+	      if (res) {
+	        // We leave the user to call `end` on the first request
+	        req.end();
+	      }
+
+	      return req;
+	    }
+
+	    // bubble errors that occur on the redirect back up to the initiating client request
+	    // object, otherwise they wind up killing the process.
+	    function forwardError (err) {
+	      clientRequest.emit('error', err);
+	    }
+	  }
+
+	  function generateWrapper (scheme, nativeProtocol) {
+	    var wrappedProtocol = scheme + ':';
+	    var H = function() {};
+	    H.prototype = nativeProtocols[wrappedProtocol] = nativeProtocol;
+	    H = new H();
+	    publicApi[scheme] = H;
+
+	    H.request = function(options, callback) {
+	      return execute(parseOptions(options, callback, wrappedProtocol));
+	    };
+
+	    // see https://github.com/joyent/node/blob/master/lib/http.js#L1623
+	    H.get = function(options, callback) {
+	      options = parseOptions(options, callback, wrappedProtocol);
+	      var req = execute(options);
+	      req.end();
+	      return req;
+	    };
+	  }
+
+	  // returns a safe copy of options (or a parsed url object if options was a string).
+	  // validates that the supplied callback is a function
+	  function parseOptions (options, callback, wrappedProtocol) {
+	    assert.equal(typeof callback, 'function', 'callback must be a function');
+	    if ('string' === typeof options) {
+	      options = url.parse(options);
+	      options.maxRedirects = publicApi.maxRedirects;
+	    } else {
+	      options = extend({
+	        maxRedirects: publicApi.maxRedirects,
+	        protocol: wrappedProtocol
+	      }, options);
+	    }
+	    assert.equal(options.protocol, wrappedProtocol, 'protocol mismatch');
+	    options.protocol = wrappedProtocol;
+	    options.userCallback = callback;
+
+	    debug('options', options);
+	    return options;
+	  }
+	};
+
+	// copies source's own properties onto destination and returns destination
+	function extend(destination, source) {
+	  for (var i in source) {
+	    if (source.hasOwnProperty(i)) {
+	      destination[i] = source[i];
+	    }
+	  }
+	  return destination;
+	}
+
+	// to redirect the result must have
+	// a statusCode between 300-399
+	// and a `Location` header
+	function isRedirect (res) {
+	  return (res.statusCode >= 300 && res.statusCode <= 399 &&
+	  'location' in res.headers);
+	}
+
+	// nulls all url related properties on the object.
+	// required on node <10
+	function wipeUrlProps(options) {
+	  for (var i = 0, l = urlProps.length; i < l; ++i) {
+	    options[urlProps[i]] = null;
+	  }
+	}
+	var urlProps = ['protocol', 'slashes', 'auth', 'host', 'port', 'hostname',
+	  'hash', 'search', 'query', 'pathname', 'path', 'href'];
+
+
+/***/ },
+/* 319 */
+/***/ function(module, exports) {
+
+	module.exports = require("url");
+
+/***/ },
+/* 320 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Detect Electron renderer process, which is node, but we should
+	 * treat as a browser.
+	 */
+
+	if (typeof process !== 'undefined' && process.type === 'renderer') {
+	  module.exports = __webpack_require__(321);
+	} else {
+	  module.exports = __webpack_require__(324);
+	}
+
+
+/***/ },
+/* 321 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * This is the web browser implementation of `debug()`.
+	 *
+	 * Expose `debug()` as the module.
+	 */
+
+	exports = module.exports = __webpack_require__(322);
+	exports.log = log;
+	exports.formatArgs = formatArgs;
+	exports.save = save;
+	exports.load = load;
+	exports.useColors = useColors;
+	exports.storage = 'undefined' != typeof chrome
+	               && 'undefined' != typeof chrome.storage
+	                  ? chrome.storage.local
+	                  : localstorage();
+
+	/**
+	 * Colors.
+	 */
+
+	exports.colors = [
+	  'lightseagreen',
+	  'forestgreen',
+	  'goldenrod',
+	  'dodgerblue',
+	  'darkorchid',
+	  'crimson'
+	];
+
+	/**
+	 * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+	 * and the Firebug extension (any Firefox version) are known
+	 * to support "%c" CSS customizations.
+	 *
+	 * TODO: add a `localStorage` variable to explicitly enable/disable colors
+	 */
+
+	function useColors() {
+	  // is webkit? http://stackoverflow.com/a/16459606/376773
+	  // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
+	  return (typeof document !== 'undefined' && 'WebkitAppearance' in document.documentElement.style) ||
+	    // is firebug? http://stackoverflow.com/a/398120/376773
+	    (window.console && (console.firebug || (console.exception && console.table))) ||
+	    // is firefox >= v31?
+	    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+	    (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
+	}
+
+	/**
+	 * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+	 */
+
+	exports.formatters.j = function(v) {
+	  try {
+	    return JSON.stringify(v);
+	  } catch (err) {
+	    return '[UnexpectedJSONParseError]: ' + err.message;
+	  }
+	};
+
+
+	/**
+	 * Colorize log arguments if enabled.
+	 *
+	 * @api public
+	 */
+
+	function formatArgs() {
+	  var args = arguments;
+	  var useColors = this.useColors;
+
+	  args[0] = (useColors ? '%c' : '')
+	    + this.namespace
+	    + (useColors ? ' %c' : ' ')
+	    + args[0]
+	    + (useColors ? '%c ' : ' ')
+	    + '+' + exports.humanize(this.diff);
+
+	  if (!useColors) return args;
+
+	  var c = 'color: ' + this.color;
+	  args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+
+	  // the final "%c" is somewhat tricky, because there could be other
+	  // arguments passed either before or after the %c, so we need to
+	  // figure out the correct index to insert the CSS into
+	  var index = 0;
+	  var lastC = 0;
+	  args[0].replace(/%[a-z%]/g, function(match) {
+	    if ('%%' === match) return;
+	    index++;
+	    if ('%c' === match) {
+	      // we only are interested in the *last* %c
+	      // (the user may have provided their own)
+	      lastC = index;
+	    }
+	  });
+
+	  args.splice(lastC, 0, c);
+	  return args;
+	}
+
+	/**
+	 * Invokes `console.log()` when available.
+	 * No-op when `console.log` is not a "function".
+	 *
+	 * @api public
+	 */
+
+	function log() {
+	  // this hackery is required for IE8/9, where
+	  // the `console.log` function doesn't have 'apply'
+	  return 'object' === typeof console
+	    && console.log
+	    && Function.prototype.apply.call(console.log, console, arguments);
+	}
+
+	/**
+	 * Save `namespaces`.
+	 *
+	 * @param {String} namespaces
+	 * @api private
+	 */
+
+	function save(namespaces) {
+	  try {
+	    if (null == namespaces) {
+	      exports.storage.removeItem('debug');
+	    } else {
+	      exports.storage.debug = namespaces;
+	    }
+	  } catch(e) {}
+	}
+
+	/**
+	 * Load `namespaces`.
+	 *
+	 * @return {String} returns the previously persisted debug modes
+	 * @api private
+	 */
+
+	function load() {
+	  var r;
+	  try {
+	    return exports.storage.debug;
+	  } catch(e) {}
+
+	  // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
+	  if (typeof process !== 'undefined' && 'env' in process) {
+	    return process.env.DEBUG;
+	  }
+	}
+
+	/**
+	 * Enable namespaces listed in `localStorage.debug` initially.
+	 */
+
+	exports.enable(load());
+
+	/**
+	 * Localstorage attempts to return the localstorage.
+	 *
+	 * This is necessary because safari throws
+	 * when a user disables cookies/localstorage
+	 * and you attempt to access it.
+	 *
+	 * @return {LocalStorage}
+	 * @api private
+	 */
+
+	function localstorage(){
+	  try {
+	    return window.localStorage;
+	  } catch (e) {}
+	}
+
+
+/***/ },
+/* 322 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * This is the common logic for both the Node.js and web browser
+	 * implementations of `debug()`.
+	 *
+	 * Expose `debug()` as the module.
+	 */
+
+	exports = module.exports = debug.debug = debug;
+	exports.coerce = coerce;
+	exports.disable = disable;
+	exports.enable = enable;
+	exports.enabled = enabled;
+	exports.humanize = __webpack_require__(323);
+
+	/**
+	 * The currently active debug mode names, and names to skip.
+	 */
+
+	exports.names = [];
+	exports.skips = [];
+
+	/**
+	 * Map of special "%n" handling functions, for the debug "format" argument.
+	 *
+	 * Valid key names are a single, lowercased letter, i.e. "n".
+	 */
+
+	exports.formatters = {};
+
+	/**
+	 * Previously assigned color.
+	 */
+
+	var prevColor = 0;
+
+	/**
+	 * Previous log timestamp.
+	 */
+
+	var prevTime;
+
+	/**
+	 * Select a color.
+	 *
+	 * @return {Number}
+	 * @api private
+	 */
+
+	function selectColor() {
+	  return exports.colors[prevColor++ % exports.colors.length];
+	}
+
+	/**
+	 * Create a debugger with the given `namespace`.
+	 *
+	 * @param {String} namespace
+	 * @return {Function}
+	 * @api public
+	 */
+
+	function debug(namespace) {
+
+	  // define the `disabled` version
+	  function disabled() {
+	  }
+	  disabled.enabled = false;
+
+	  // define the `enabled` version
+	  function enabled() {
+
+	    var self = enabled;
+
+	    // set `diff` timestamp
+	    var curr = +new Date();
+	    var ms = curr - (prevTime || curr);
+	    self.diff = ms;
+	    self.prev = prevTime;
+	    self.curr = curr;
+	    prevTime = curr;
+
+	    // add the `color` if not set
+	    if (null == self.useColors) self.useColors = exports.useColors();
+	    if (null == self.color && self.useColors) self.color = selectColor();
+
+	    var args = new Array(arguments.length);
+	    for (var i = 0; i < args.length; i++) {
+	      args[i] = arguments[i];
+	    }
+
+	    args[0] = exports.coerce(args[0]);
+
+	    if ('string' !== typeof args[0]) {
+	      // anything else let's inspect with %o
+	      args = ['%o'].concat(args);
+	    }
+
+	    // apply any `formatters` transformations
+	    var index = 0;
+	    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+	      // if we encounter an escaped % then don't increase the array index
+	      if (match === '%%') return match;
+	      index++;
+	      var formatter = exports.formatters[format];
+	      if ('function' === typeof formatter) {
+	        var val = args[index];
+	        match = formatter.call(self, val);
+
+	        // now we need to remove `args[index]` since it's inlined in the `format`
+	        args.splice(index, 1);
+	        index--;
+	      }
+	      return match;
+	    });
+
+	    // apply env-specific formatting
+	    args = exports.formatArgs.apply(self, args);
+
+	    var logFn = enabled.log || exports.log || console.log.bind(console);
+	    logFn.apply(self, args);
+	  }
+	  enabled.enabled = true;
+
+	  var fn = exports.enabled(namespace) ? enabled : disabled;
+
+	  fn.namespace = namespace;
+
+	  return fn;
+	}
+
+	/**
+	 * Enables a debug mode by namespaces. This can include modes
+	 * separated by a colon and wildcards.
+	 *
+	 * @param {String} namespaces
+	 * @api public
+	 */
+
+	function enable(namespaces) {
+	  exports.save(namespaces);
+
+	  var split = (namespaces || '').split(/[\s,]+/);
+	  var len = split.length;
+
+	  for (var i = 0; i < len; i++) {
+	    if (!split[i]) continue; // ignore empty strings
+	    namespaces = split[i].replace(/[\\^$+?.()|[\]{}]/g, '\\$&').replace(/\*/g, '.*?');
+	    if (namespaces[0] === '-') {
+	      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+	    } else {
+	      exports.names.push(new RegExp('^' + namespaces + '$'));
+	    }
+	  }
+	}
+
+	/**
+	 * Disable debug output.
+	 *
+	 * @api public
+	 */
+
+	function disable() {
+	  exports.enable('');
+	}
+
+	/**
+	 * Returns true if the given mode name is enabled, false otherwise.
+	 *
+	 * @param {String} name
+	 * @return {Boolean}
+	 * @api public
+	 */
+
+	function enabled(name) {
+	  var i, len;
+	  for (i = 0, len = exports.skips.length; i < len; i++) {
+	    if (exports.skips[i].test(name)) {
+	      return false;
+	    }
+	  }
+	  for (i = 0, len = exports.names.length; i < len; i++) {
+	    if (exports.names[i].test(name)) {
+	      return true;
+	    }
+	  }
+	  return false;
+	}
+
+	/**
+	 * Coerce `val`.
+	 *
+	 * @param {Mixed} val
+	 * @return {Mixed}
+	 * @api private
+	 */
+
+	function coerce(val) {
+	  if (val instanceof Error) return val.stack || val.message;
+	  return val;
+	}
+
+
+/***/ },
+/* 323 */
+/***/ function(module, exports) {
+
+	/**
+	 * Helpers.
+	 */
+
+	var s = 1000
+	var m = s * 60
+	var h = m * 60
+	var d = h * 24
+	var y = d * 365.25
+
+	/**
+	 * Parse or format the given `val`.
+	 *
+	 * Options:
+	 *
+	 *  - `long` verbose formatting [false]
+	 *
+	 * @param {String|Number} val
+	 * @param {Object} options
+	 * @throws {Error} throw an error if val is not a non-empty string or a number
+	 * @return {String|Number}
+	 * @api public
+	 */
+
+	module.exports = function (val, options) {
+	  options = options || {}
+	  var type = typeof val
+	  if (type === 'string' && val.length > 0) {
+	    return parse(val)
+	  } else if (type === 'number' && isNaN(val) === false) {
+	    return options.long ?
+				fmtLong(val) :
+				fmtShort(val)
+	  }
+	  throw new Error('val is not a non-empty string or a valid number. val=' + JSON.stringify(val))
+	}
+
+	/**
+	 * Parse the given `str` and return milliseconds.
+	 *
+	 * @param {String} str
+	 * @return {Number}
+	 * @api private
+	 */
+
+	function parse(str) {
+	  str = String(str)
+	  if (str.length > 10000) {
+	    return
+	  }
+	  var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str)
+	  if (!match) {
+	    return
+	  }
+	  var n = parseFloat(match[1])
+	  var type = (match[2] || 'ms').toLowerCase()
+	  switch (type) {
+	    case 'years':
+	    case 'year':
+	    case 'yrs':
+	    case 'yr':
+	    case 'y':
+	      return n * y
+	    case 'days':
+	    case 'day':
+	    case 'd':
+	      return n * d
+	    case 'hours':
+	    case 'hour':
+	    case 'hrs':
+	    case 'hr':
+	    case 'h':
+	      return n * h
+	    case 'minutes':
+	    case 'minute':
+	    case 'mins':
+	    case 'min':
+	    case 'm':
+	      return n * m
+	    case 'seconds':
+	    case 'second':
+	    case 'secs':
+	    case 'sec':
+	    case 's':
+	      return n * s
+	    case 'milliseconds':
+	    case 'millisecond':
+	    case 'msecs':
+	    case 'msec':
+	    case 'ms':
+	      return n
+	    default:
+	      return undefined
+	  }
+	}
+
+	/**
+	 * Short format for `ms`.
+	 *
+	 * @param {Number} ms
+	 * @return {String}
+	 * @api private
+	 */
+
+	function fmtShort(ms) {
+	  if (ms >= d) {
+	    return Math.round(ms / d) + 'd'
+	  }
+	  if (ms >= h) {
+	    return Math.round(ms / h) + 'h'
+	  }
+	  if (ms >= m) {
+	    return Math.round(ms / m) + 'm'
+	  }
+	  if (ms >= s) {
+	    return Math.round(ms / s) + 's'
+	  }
+	  return ms + 'ms'
+	}
+
+	/**
+	 * Long format for `ms`.
+	 *
+	 * @param {Number} ms
+	 * @return {String}
+	 * @api private
+	 */
+
+	function fmtLong(ms) {
+	  return plural(ms, d, 'day') ||
+	    plural(ms, h, 'hour') ||
+	    plural(ms, m, 'minute') ||
+	    plural(ms, s, 'second') ||
+	    ms + ' ms'
+	}
+
+	/**
+	 * Pluralization helper.
+	 */
+
+	function plural(ms, n, name) {
+	  if (ms < n) {
+	    return
+	  }
+	  if (ms < n * 1.5) {
+	    return Math.floor(ms / n) + ' ' + name
+	  }
+	  return Math.ceil(ms / n) + ' ' + name + 's'
+	}
+
+
+/***/ },
+/* 324 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * Module dependencies.
+	 */
+
+	var tty = __webpack_require__(325);
+	var util = __webpack_require__(326);
+
+	/**
+	 * This is the Node.js implementation of `debug()`.
+	 *
+	 * Expose `debug()` as the module.
+	 */
+
+	exports = module.exports = __webpack_require__(322);
+	exports.log = log;
+	exports.formatArgs = formatArgs;
+	exports.save = save;
+	exports.load = load;
+	exports.useColors = useColors;
+
+	/**
+	 * Colors.
+	 */
+
+	exports.colors = [6, 2, 3, 4, 5, 1];
+
+	/**
+	 * The file descriptor to write the `debug()` calls to.
+	 * Set the `DEBUG_FD` env variable to override with another value. i.e.:
+	 *
+	 *   $ DEBUG_FD=3 node script.js 3>debug.log
+	 */
+
+	var fd = parseInt(process.env.DEBUG_FD, 10) || 2;
+	var stream = 1 === fd ? process.stdout :
+	             2 === fd ? process.stderr :
+	             createWritableStdioStream(fd);
+
+	/**
+	 * Is stdout a TTY? Colored output is enabled when `true`.
+	 */
+
+	function useColors() {
+	  var debugColors = (process.env.DEBUG_COLORS || '').trim().toLowerCase();
+	  if (0 === debugColors.length) {
+	    return tty.isatty(fd);
+	  } else {
+	    return '0' !== debugColors
+	        && 'no' !== debugColors
+	        && 'false' !== debugColors
+	        && 'disabled' !== debugColors;
+	  }
+	}
+
+	/**
+	 * Map %o to `util.inspect()`, since Node doesn't do that out of the box.
+	 */
+
+	var inspect = (4 === util.inspect.length ?
+	  // node <= 0.8.x
+	  function (v, colors) {
+	    return util.inspect(v, void 0, void 0, colors);
+	  } :
+	  // node > 0.8.x
+	  function (v, colors) {
+	    return util.inspect(v, { colors: colors });
+	  }
+	);
+
+	exports.formatters.o = exports.formatters.O = function(v) {
+	  return inspect(v, this.useColors)
+	    .replace(/\s*\n\s*/g, ' ');
+	};
+
+	/**
+	 * Adds ANSI color escape codes if enabled.
+	 *
+	 * @api public
+	 */
+
+	function formatArgs() {
+	  var len = arguments.length;
+	  var args = new Array(len);
+	  var useColors = this.useColors;
+	  var name = this.namespace;
+	  for (var i = 0; i < len; i++) {
+	    args[i] = arguments[i];
+	  }
+
+	  if (useColors) {
+	    var c = this.color;
+
+	    args[0] = '  \u001b[3' + c + ';1m' + name + ' '
+	      + '\u001b[0m'
+	      + args[0];
+	    args.push('\u001b[3' + c + 'm+' + exports.humanize(this.diff) + '\u001b[0m');
+	  } else {
+	    args[0] = new Date().toUTCString()
+	      + ' ' + name + ' ' + args[0];
+	  }
+	  return args;
+	}
+
+	/**
+	 * Invokes `console.error()` with the specified arguments.
+	 */
+
+	function log() {
+	  return stream.write(util.format.apply(this, arguments) + '\n');
+	}
+
+	/**
+	 * Save `namespaces`.
+	 *
+	 * @param {String} namespaces
+	 * @api private
+	 */
+
+	function save(namespaces) {
+	  if (null == namespaces) {
+	    // If you set a process.env field to null or undefined, it gets cast to the
+	    // string 'null' or 'undefined'. Just delete instead.
+	    delete process.env.DEBUG;
+	  } else {
+	    process.env.DEBUG = namespaces;
+	  }
+	}
+
+	/**
+	 * Load `namespaces`.
+	 *
+	 * @return {String} returns the previously persisted debug modes
+	 * @api private
+	 */
+
+	function load() {
+	  return process.env.DEBUG;
+	}
+
+	/**
+	 * Copied from `node/src/node.js`.
+	 *
+	 * XXX: It's lame that node doesn't expose this API out-of-the-box. It also
+	 * relies on the undocumented `tty_wrap.guessHandleType()` which is also lame.
+	 */
+
+	function createWritableStdioStream (fd) {
+	  var stream;
+	  var tty_wrap = process.binding('tty_wrap');
+
+	  // Note stream._type is used for test-module-load-list.js
+
+	  switch (tty_wrap.guessHandleType(fd)) {
+	    case 'TTY':
+	      stream = new tty.WriteStream(fd);
+	      stream._type = 'tty';
+
+	      // Hack to have stream not keep the event loop alive.
+	      // See https://github.com/joyent/node/issues/1726
+	      if (stream._handle && stream._handle.unref) {
+	        stream._handle.unref();
+	      }
+	      break;
+
+	    case 'FILE':
+	      var fs = __webpack_require__(327);
+	      stream = new fs.SyncWriteStream(fd, { autoClose: false });
+	      stream._type = 'fs';
+	      break;
+
+	    case 'PIPE':
+	    case 'TCP':
+	      var net = __webpack_require__(328);
+	      stream = new net.Socket({
+	        fd: fd,
+	        readable: false,
+	        writable: true
+	      });
+
+	      // FIXME Should probably have an option in net.Socket to create a
+	      // stream from an existing fd which is writable only. But for now
+	      // we'll just add this hack and set the `readable` member to false.
+	      // Test: ./node test/fixtures/echo.js < /etc/passwd
+	      stream.readable = false;
+	      stream.read = null;
+	      stream._type = 'pipe';
+
+	      // FIXME Hack to have stream not keep the event loop alive.
+	      // See https://github.com/joyent/node/issues/1726
+	      if (stream._handle && stream._handle.unref) {
+	        stream._handle.unref();
+	      }
+	      break;
+
+	    default:
+	      // Probably an error on in uv_guess_handle()
+	      throw new Error('Implement me. Unknown stream file type!');
+	  }
+
+	  // For supporting legacy API we put the FD here.
+	  stream.fd = fd;
+
+	  stream._isStdio = true;
+
+	  return stream;
+	}
+
+	/**
+	 * Enable namespaces listed in `process.env.DEBUG` initially.
+	 */
+
+	exports.enable(load());
+
+
+/***/ },
+/* 325 */
+/***/ function(module, exports) {
+
+	module.exports = require("tty");
+
+/***/ },
+/* 326 */
+/***/ function(module, exports) {
+
+	module.exports = require("util");
+
+/***/ },
+/* 327 */
+/***/ function(module, exports) {
+
+	module.exports = require("fs");
+
+/***/ },
+/* 328 */
+/***/ function(module, exports) {
+
+	module.exports = require("net");
+
+/***/ },
+/* 329 */
+/***/ function(module, exports) {
+
+	module.exports = require("assert");
+
+/***/ },
+/* 330 */
+/***/ function(module, exports) {
+
+	module.exports = function(stream) {
+	    if (stream.readable && typeof stream.resume === 'function') {
+	        var state = stream._readableState;
+	        if (!state || state.pipesCount === 0) {
+	            // Either a classic stream or streams2 that's not piped to another destination
+	            try {
+	                stream.resume();
+	            } catch (err) {
+	                console.error("Got error: " + err);
+	                // If we can't, it's not worth dying over
+	            }
+	        }
+	    }
+	};
+
+
+/***/ },
+/* 331 */
+/***/ function(module, exports) {
+
+	module.exports = require("zlib");
+
+/***/ },
+/* 332 */
+/***/ function(module, exports) {
+
+	module.exports = {
+		"name": "axios",
+		"version": "0.14.0",
+		"description": "Promise based HTTP client for the browser and node.js",
+		"main": "index.js",
+		"scripts": {
+			"test": "grunt test",
+			"start": "node ./sandbox/server.js",
+			"build": "NODE_ENV=production grunt build",
+			"preversion": "npm test",
+			"version": "npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json",
+			"postversion": "git push && git push --tags",
+			"examples": "node ./examples/server.js",
+			"coveralls": "cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+		},
+		"repository": {
+			"type": "git",
+			"url": "https://github.com/mzabriskie/axios.git"
+		},
+		"keywords": [
+			"xhr",
+			"http",
+			"ajax",
+			"promise",
+			"node"
+		],
+		"author": "Matt Zabriskie",
+		"license": "MIT",
+		"bugs": {
+			"url": "https://github.com/mzabriskie/axios/issues"
+		},
+		"homepage": "https://github.com/mzabriskie/axios",
+		"devDependencies": {
+			"coveralls": "^2.11.9",
+			"es6-promise": "^3.2.1",
+			"grunt": "0.4.5",
+			"grunt-banner": "0.6.0",
+			"grunt-cli": "0.1.13",
+			"grunt-contrib-clean": "1.0.0",
+			"grunt-contrib-nodeunit": "1.0.0",
+			"grunt-contrib-watch": "0.6.1",
+			"grunt-eslint": "18.0.0",
+			"grunt-karma": "0.12.1",
+			"grunt-ts": "5.3.2",
+			"grunt-typings": "0.1.5",
+			"grunt-webpack": "1.0.11",
+			"istanbul-instrumenter-loader": "^0.2.0",
+			"jasmine-core": "^2.4.1",
+			"karma": "^0.13.22",
+			"karma-chrome-launcher": "^1.0.1",
+			"karma-coverage": "^1.0.0",
+			"karma-firefox-launcher": "^1.0.0",
+			"karma-jasmine": "^1.0.2",
+			"karma-jasmine-ajax": "^0.1.13",
+			"karma-opera-launcher": "^1.0.0",
+			"karma-phantomjs-launcher": "^1.0.0",
+			"karma-safari-launcher": "^1.0.0",
+			"karma-sauce-launcher": "^1.0.0",
+			"karma-sinon": "^1.0.5",
+			"karma-sourcemap-loader": "^0.3.7",
+			"karma-webpack": "^1.7.0",
+			"load-grunt-tasks": "3.4.1",
+			"minimist": "^1.2.0",
+			"phantomjs-prebuilt": "^2.1.7",
+			"sinon": "^1.17.4",
+			"webpack": "^1.13.1",
+			"webpack-dev-server": "^1.14.1",
+			"url-search-params": "^0.5.0"
+		},
+		"browser": {
+			"./lib/adapters/http.js": "./lib/adapters/xhr.js"
+		},
+		"typings": "./axios.d.ts",
+		"dependencies": {
+			"follow-redirects": "0.0.7"
+		}
+	};
+
+/***/ },
+/* 333 */
+/***/ function(module, exports) {
+
+	module.exports = require("buffer");
+
+/***/ },
+/* 334 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	/**
+	 * Determines whether the specified URL is absolute
+	 *
+	 * @param {string} url The URL to test
+	 * @returns {boolean} True if the specified URL is absolute, otherwise false
+	 */
+	module.exports = function isAbsoluteURL(url) {
+	  // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
+	  // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
+	  // by any combination of letters, digits, plus, period, or hyphen.
+	  return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
+	};
+
+
+/***/ },
+/* 335 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	/**
+	 * Creates a new URL by combining the specified URLs
+	 *
+	 * @param {string} baseURL The base URL
+	 * @param {string} relativeURL The relative URL
+	 * @returns {string} The combined URL
+	 */
+	module.exports = function combineURLs(baseURL, relativeURL) {
+	  return baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '');
+	};
+
+
+/***/ },
+/* 336 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	/**
+	 * Syntactic sugar for invoking a function and expanding an array for arguments.
+	 *
+	 * Common use case would be to use `Function.prototype.apply`.
+	 *
+	 *  ```js
+	 *  function f(x, y, z) {}
+	 *  var args = [1, 2, 3];
+	 *  f.apply(null, args);
+	 *  ```
+	 *
+	 * With `spread` this example can be re-written.
+	 *
+	 *  ```js
+	 *  spread(function(x, y, z) {})([1, 2, 3]);
+	 *  ```
+	 *
+	 * @param {Function} callback
+	 * @returns {Function}
+	 */
+	module.exports = function spread(callback) {
+	  return function wrap(arr) {
+	    return callback.apply(null, arr);
+	  };
+	};
+
+
+/***/ },
+/* 337 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _keymirror = __webpack_require__(338);
 
 	var _keymirror2 = _interopRequireDefault(_keymirror);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var USER = exports.USER = (0, _keymirror2.default)({
-	  SIGN_UP_REQUEST: null,
-	  SIGN_UP_SUCCESS: null,
-	  SIGN_UP_FAILURE: null
+	var types = (0, _keymirror2.default)({
+	  CREATE_REQUEST: null,
+	  REQUEST_SUCCESS: null,
+	  REQUEST_FAILURE: null,
+
+	  SIGN_UP: null
 	});
 
+	exports.default = types;
+
 /***/ },
-/* 294 */
+/* 338 */
 /***/ function(module, exports) {
 
 	/**
@@ -31736,53 +35641,7 @@ module.exports =
 
 
 /***/ },
-/* 295 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	/*
-	 * For all the action helpers
-	 */
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.actionCreator = actionCreator;
-	exports.fetchAction = fetchAction;
-	function actionCreator(ACTION) {
-	  return function () {
-	    var res = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-
-	    return {
-	      type: ACTION,
-	      res: res
-	    };
-	  };
-	}
-
-	function fetchAction(dispatch, url, requestObj, REQUEST, SUCCESS, FAILURE) {
-	  // Start request
-	  dispatch(REQUEST());
-
-	  try {
-	    return fetch(url, requestObj).then(function (res) {
-	      return res.json();
-	    }).then(function (json) {
-	      // Handle success and failure
-	      if (json.success) {
-	        dispatch(SUCCESS(json));
-	      } else {
-	        dispatch(FAILURE(json));
-	      }
-	    });
-	  } catch (e) {
-	    dispatch(FAILURE(json));
-	  }
-	}
-
-/***/ },
-/* 296 */
+/* 339 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -31793,7 +35652,7 @@ module.exports =
 	};
 
 /***/ },
-/* 297 */
+/* 340 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31808,21 +35667,21 @@ module.exports =
 
 	var _redux = __webpack_require__(106);
 
-	var _reactRouterRedux = __webpack_require__(298);
+	var _reactRouterRedux = __webpack_require__(341);
 
-	var _reduxThunk = __webpack_require__(303);
+	var _reduxThunk = __webpack_require__(346);
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
-	var _reducers = __webpack_require__(304);
+	var _reducers = __webpack_require__(347);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
-	var _promiseMiddleware = __webpack_require__(309);
+	var _promiseMiddleware = __webpack_require__(349);
 
 	var _promiseMiddleware2 = _interopRequireDefault(_promiseMiddleware);
 
-	var _reduxLogger = __webpack_require__(310);
+	var _reduxLogger = __webpack_require__(350);
 
 	var _reduxLogger2 = _interopRequireDefault(_reduxLogger);
 
@@ -31862,7 +35721,7 @@ module.exports =
 	}
 
 /***/ },
-/* 298 */
+/* 341 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31872,7 +35731,7 @@ module.exports =
 	});
 	exports.routerMiddleware = exports.routerActions = exports.goForward = exports.goBack = exports.go = exports.replace = exports.push = exports.CALL_HISTORY_METHOD = exports.routerReducer = exports.LOCATION_CHANGE = exports.syncHistoryWithStore = undefined;
 
-	var _reducer = __webpack_require__(299);
+	var _reducer = __webpack_require__(342);
 
 	Object.defineProperty(exports, 'LOCATION_CHANGE', {
 	  enumerable: true,
@@ -31887,7 +35746,7 @@ module.exports =
 	  }
 	});
 
-	var _actions = __webpack_require__(300);
+	var _actions = __webpack_require__(343);
 
 	Object.defineProperty(exports, 'CALL_HISTORY_METHOD', {
 	  enumerable: true,
@@ -31932,11 +35791,11 @@ module.exports =
 	  }
 	});
 
-	var _sync = __webpack_require__(301);
+	var _sync = __webpack_require__(344);
 
 	var _sync2 = _interopRequireDefault(_sync);
 
-	var _middleware = __webpack_require__(302);
+	var _middleware = __webpack_require__(345);
 
 	var _middleware2 = _interopRequireDefault(_middleware);
 
@@ -31946,7 +35805,7 @@ module.exports =
 	exports.routerMiddleware = _middleware2['default'];
 
 /***/ },
-/* 299 */
+/* 342 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -31989,7 +35848,7 @@ module.exports =
 	}
 
 /***/ },
-/* 300 */
+/* 343 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -32031,7 +35890,7 @@ module.exports =
 	var routerActions = exports.routerActions = { push: push, replace: replace, go: go, goBack: goBack, goForward: goForward };
 
 /***/ },
-/* 301 */
+/* 344 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32044,7 +35903,7 @@ module.exports =
 
 	exports['default'] = syncHistoryWithStore;
 
-	var _reducer = __webpack_require__(299);
+	var _reducer = __webpack_require__(342);
 
 	var defaultSelectLocationState = function defaultSelectLocationState(state) {
 	  return state.routing;
@@ -32189,7 +36048,7 @@ module.exports =
 	}
 
 /***/ },
-/* 302 */
+/* 345 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32199,7 +36058,7 @@ module.exports =
 	});
 	exports['default'] = routerMiddleware;
 
-	var _actions = __webpack_require__(300);
+	var _actions = __webpack_require__(343);
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -32227,7 +36086,7 @@ module.exports =
 	}
 
 /***/ },
-/* 303 */
+/* 346 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -32255,7 +36114,7 @@ module.exports =
 	exports['default'] = thunk;
 
 /***/ },
-/* 304 */
+/* 347 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32266,25 +36125,15 @@ module.exports =
 
 	var _redux = __webpack_require__(106);
 
-	var _user = __webpack_require__(305);
+	var _user = __webpack_require__(348);
 
 	var _user2 = _interopRequireDefault(_user);
 
-	var _topic = __webpack_require__(307);
+	var _reactRouterRedux = __webpack_require__(341);
 
-	var _topic2 = _interopRequireDefault(_topic);
+	var _types = __webpack_require__(337);
 
-	var _message = __webpack_require__(308);
-
-	var _message2 = _interopRequireDefault(_message);
-
-	var _reactRouterRedux = __webpack_require__(298);
-
-	var _types = __webpack_require__(306);
-
-	var types = _interopRequireWildcard(_types);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	var _types2 = _interopRequireDefault(_types);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -32293,10 +36142,10 @@ module.exports =
 	  var action = arguments[1];
 
 	  switch (action.type) {
-	    case types.CREATE_REQUEST:
+	    case _types2.default.CREATE_REQUEST:
 	      return true;
-	    case types.REQUEST_SUCCESS:
-	    case types.REQUEST_FAILURE:
+	    case _types2.default.REQUEST_SUCCESS:
+	    case _types2.default.REQUEST_FAILURE:
 	      return false;
 	    default:
 	      return state;
@@ -32307,16 +36156,14 @@ module.exports =
 	// router state
 	var rootReducer = (0, _redux.combineReducers)({
 	  isFetching: isFetching,
-	  topic: _topic2.default,
 	  user: _user2.default,
-	  message: _message2.default,
 	  routing: _reactRouterRedux.routerReducer
 	});
 
 	exports.default = rootReducer;
 
 /***/ },
-/* 305 */
+/* 348 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32325,62 +36172,31 @@ module.exports =
 	  value: true
 	});
 
-	var _types = __webpack_require__(306);
+	var _types = __webpack_require__(337);
 
-	var types = _interopRequireWildcard(_types);
+	var _types2 = _interopRequireDefault(_types);
 
 	var _redux = __webpack_require__(106);
 
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var isLogin = function isLogin() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	var signedUp = function signedUp() {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+	    message: ''
+	  };
 	  var action = arguments[1];
 
 	  switch (action.type) {
-	    case types.TOGGLE_LOGIN_MODE:
-	      return !state;
-	    default:
+	    case _types2.default.SIGN_UP + '_REQUEST':
 	      return state;
-	  }
-	};
-
-	var message = function message() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-	  var action = arguments[1];
-
-	  switch (action.type) {
-	    case types.TOGGLE_LOGIN_MODE:
-	    case types.MANUAL_LOGIN_USER:
-	    case types.SIGNUP_USER:
-	    case types.LOGOUT_USER:
-	    case types.LOGIN_SUCCESS_USER:
-	    case types.SIGNUP_SUCCESS_USER:
-	      return '';
-	    case types.LOGIN_ERROR_USER:
-	    case types.SIGNUP_ERROR_USER:
-	      return action.message;
-	    default:
-	      return state;
-	  }
-	};
-
-	var isWaiting = function isWaiting() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-	  var action = arguments[1];
-
-	  switch (action.type) {
-	    case types.MANUAL_LOGIN_USER:
-	    case types.SIGNUP_USER:
-	    case types.LOGOUT_USER:
-	      return true;
-	    case types.LOGIN_SUCCESS_USER:
-	    case types.SIGNUP_SUCCESS_USER:
-	    case types.LOGOUT_SUCCESS_USER:
-	    case types.LOGIN_ERROR_USER:
-	    case types.SIGNUP_ERROR_USER:
-	    case types.LOGOUT_ERROR_USER:
-	      return false;
+	    case _types2.default.SIGN_UP + '_SUCCESS':
+	      return {
+	        message: action.res.data.message
+	      };
+	    case _types2.default.SIGN_UP + '_FAILURE':
+	      return {
+	        message: 'Please try again'
+	      };
 	    default:
 	      return state;
 	  }
@@ -32391,207 +36207,20 @@ module.exports =
 	  var action = arguments[1];
 
 	  switch (action.type) {
-	    case types.LOGIN_SUCCESS_USER:
-	    case types.SIGNUP_SUCCESS_USER:
-	    case types.LOGOUT_ERROR_USER:
-	      return true;
-	    case types.LOGIN_ERROR_USER:
-	    case types.SIGNUP_ERROR_USER:
-	    case types.LOGOUT_SUCCESS_USER:
-	      return false;
 	    default:
 	      return state;
 	  }
 	};
 
 	var userReducer = (0, _redux.combineReducers)({
-	  isLogin: isLogin,
-	  isWaiting: isWaiting,
-	  authenticated: authenticated,
-	  message: message
+	  signedUp: signedUp,
+	  authenticated: authenticated
 	});
 
 	exports.default = userReducer;
 
 /***/ },
-/* 306 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _keymirror = __webpack_require__(294);
-
-	var _keymirror2 = _interopRequireDefault(_keymirror);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var types = (0, _keymirror2.default)({
-	  CREATE_REQUEST: null,
-	  REQUEST_SUCCESS: null,
-	  REQUEST_FAILURE: null,
-
-	  SHOW_USER: null,
-	  GET_CONTACTS: null,
-	  SELECT_CONTACT: null,
-	  DESELECT_CONTACT: null,
-	  SELECT_ALL_CONTACTS: null,
-	  DESELECT_ALL_CONTACTS: null,
-	  SEND_INVITES: null,
-
-	  SIGNUP_USER: null,
-	  SIGNUP_SUCCESS_USER: null,
-	  SIGNUP_ERROR_USER: null
-	});
-
-	exports.default = types;
-
-/***/ },
-/* 307 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _redux = __webpack_require__(106);
-
-	var _types = __webpack_require__(306);
-
-	var types = _interopRequireWildcard(_types);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-	var topic = function topic() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	  var action = arguments[1];
-
-	  switch (action.type) {
-	    case types.CREATE_TOPIC_REQUEST:
-	      return {
-	        id: action.id,
-	        count: action.count,
-	        text: action.text
-	      };
-	    case types.INCREMENT_COUNT:
-	      if (state.id === action.id) {
-	        return _extends({}, state, { count: state.count + 1 });
-	      }
-	      return state;
-	    case types.DECREMENT_COUNT:
-	      if (state.id === action.id) {
-	        return _extends({}, state, { count: state.count - 1 });
-	      }
-	      return state;
-	    default:
-	      return state;
-	  }
-	};
-
-	var topics = function topics() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-	  var action = arguments[1];
-
-	  switch (action.type) {
-	    case types.REQUEST_SUCCESS:
-	      if (action.data) return action.data;
-	      return state;
-	    case types.CREATE_TOPIC_REQUEST:
-	      return [].concat(_toConsumableArray(state), [topic(undefined, action)]);
-	    case types.CREATE_TOPIC_FAILURE:
-	      return state.filter(function (t) {
-	        return t.id !== action.id;
-	      });
-	    case types.DESTROY_TOPIC:
-	      return state.filter(function (t) {
-	        return t.id !== action.id;
-	      });
-	    case types.INCREMENT_COUNT:
-	    case types.DECREMENT_COUNT:
-	      return state.map(function (t) {
-	        return topic(t, action);
-	      });
-	    default:
-	      return state;
-	  }
-	};
-
-	var newTopic = function newTopic() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-	  var action = arguments[1];
-
-	  switch (action.type) {
-	    case types.TYPING:
-	      return action.newTopic;
-	    case types.CREATE_TOPIC_REQUEST:
-	      return '';
-	    default:
-	      return state;
-	  }
-	};
-
-	var topicReducer = (0, _redux.combineReducers)({
-	  topics: topics,
-	  newTopic: newTopic
-	});
-
-	exports.default = topicReducer;
-
-/***/ },
-/* 308 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	exports.default = message;
-
-	var _types = __webpack_require__(306);
-
-	var types = _interopRequireWildcard(_types);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	/*
-	 * Message store for global messages, i.e. Network messages / Redirect messages
-	 * that need to be communicated on the page itself. Ideally
-	 * messages/notifications should appear within the component to give the user
-	 * more context. - My 2 cents.
-	 */
-	function message() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-	    message: '',
-	    type: 'SUCCESS'
-	  };
-	  var action = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-	  switch (action.type) {
-	    case types.LOGIN_SUCCESS_USER:
-	    case types.SIGNUP_SUCCESS_USER:
-	      return _extends({}, state, { message: action.message, type: 'SUCCESS' });
-	    case types.DISMISS_MESSAGE:
-	      return _extends({}, state, { message: '', type: 'SUCCESS' });
-	    default:
-	      return state;
-	  }
-	}
-
-/***/ },
-/* 309 */
+/* 349 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -32636,7 +36265,7 @@ module.exports =
 	}
 
 /***/ },
-/* 310 */
+/* 350 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32647,11 +36276,11 @@ module.exports =
 	  value: true
 	});
 
-	var _core = __webpack_require__(311);
+	var _core = __webpack_require__(351);
 
-	var _helpers = __webpack_require__(312);
+	var _helpers = __webpack_require__(352);
 
-	var _defaults = __webpack_require__(315);
+	var _defaults = __webpack_require__(355);
 
 	var _defaults2 = _interopRequireDefault(_defaults);
 
@@ -32754,7 +36383,7 @@ module.exports =
 	module.exports = exports['default'];
 
 /***/ },
-/* 311 */
+/* 351 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32764,9 +36393,9 @@ module.exports =
 	});
 	exports.printBuffer = printBuffer;
 
-	var _helpers = __webpack_require__(312);
+	var _helpers = __webpack_require__(352);
 
-	var _diff = __webpack_require__(313);
+	var _diff = __webpack_require__(353);
 
 	var _diff2 = _interopRequireDefault(_diff);
 
@@ -32895,7 +36524,7 @@ module.exports =
 	}
 
 /***/ },
-/* 312 */
+/* 352 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -32919,7 +36548,7 @@ module.exports =
 	var timer = exports.timer = typeof performance !== "undefined" && performance !== null && typeof performance.now === "function" ? performance : Date;
 
 /***/ },
-/* 313 */
+/* 353 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32929,7 +36558,7 @@ module.exports =
 	});
 	exports.default = diffLogger;
 
-	var _deepDiff = __webpack_require__(314);
+	var _deepDiff = __webpack_require__(354);
 
 	var _deepDiff2 = _interopRequireDefault(_deepDiff);
 
@@ -33015,7 +36644,7 @@ module.exports =
 	module.exports = exports['default'];
 
 /***/ },
-/* 314 */
+/* 354 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -33443,7 +37072,7 @@ module.exports =
 
 
 /***/ },
-/* 315 */
+/* 355 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -33494,7 +37123,7 @@ module.exports =
 	module.exports = exports['default'];
 
 /***/ },
-/* 316 */
+/* 356 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -33519,7 +37148,7 @@ module.exports =
 	exports.default = preRenderMiddleware;
 
 /***/ },
-/* 317 */
+/* 357 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33532,13 +37161,13 @@ module.exports =
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _server = __webpack_require__(318);
+	var _server = __webpack_require__(358);
 
 	var _reactRedux = __webpack_require__(99);
 
 	var _reactRouter = __webpack_require__(31);
 
-	var _reactHelmet = __webpack_require__(322);
+	var _reactHelmet = __webpack_require__(362);
 
 	var _reactHelmet2 = _interopRequireDefault(_reactHelmet);
 
@@ -33566,16 +37195,16 @@ module.exports =
 	};
 
 /***/ },
-/* 318 */
+/* 358 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	module.exports = __webpack_require__(319);
+	module.exports = __webpack_require__(359);
 
 
 /***/ },
-/* 319 */
+/* 359 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -33591,7 +37220,7 @@ module.exports =
 	'use strict';
 
 	var ReactDefaultInjection = __webpack_require__(136);
-	var ReactServerRendering = __webpack_require__(320);
+	var ReactServerRendering = __webpack_require__(360);
 	var ReactVersion = __webpack_require__(269);
 
 	ReactDefaultInjection.inject();
@@ -33605,7 +37234,7 @@ module.exports =
 	module.exports = ReactDOMServer;
 
 /***/ },
-/* 320 */
+/* 360 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -33627,7 +37256,7 @@ module.exports =
 	var ReactInstrumentation = __webpack_require__(160);
 	var ReactMarkupChecksum = __webpack_require__(267);
 	var ReactReconciler = __webpack_require__(157);
-	var ReactServerBatchingStrategy = __webpack_require__(321);
+	var ReactServerBatchingStrategy = __webpack_require__(361);
 	var ReactServerRenderingTransaction = __webpack_require__(231);
 	var ReactUpdates = __webpack_require__(154);
 
@@ -33699,7 +37328,7 @@ module.exports =
 	};
 
 /***/ },
-/* 321 */
+/* 361 */
 /***/ function(module, exports) {
 
 	/**
@@ -33725,7 +37354,7 @@ module.exports =
 	module.exports = ReactServerBatchingStrategy;
 
 /***/ },
-/* 322 */
+/* 362 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports.__esModule = true;
@@ -33738,7 +37367,7 @@ module.exports =
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactSideEffect = __webpack_require__(323);
+	var _reactSideEffect = __webpack_require__(363);
 
 	var _reactSideEffect2 = _interopRequireDefault(_reactSideEffect);
 
@@ -33750,9 +37379,9 @@ module.exports =
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
-	var _HelmetConstants = __webpack_require__(326);
+	var _HelmetConstants = __webpack_require__(366);
 
-	var _PlainComponent = __webpack_require__(327);
+	var _PlainComponent = __webpack_require__(367);
 
 	var _PlainComponent2 = _interopRequireDefault(_PlainComponent);
 
@@ -34279,7 +37908,7 @@ module.exports =
 	module.exports = exports["default"];
 
 /***/ },
-/* 323 */
+/* 363 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34296,11 +37925,11 @@ module.exports =
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _fbjsLibExecutionEnvironment = __webpack_require__(324);
+	var _fbjsLibExecutionEnvironment = __webpack_require__(364);
 
 	var _fbjsLibExecutionEnvironment2 = _interopRequireDefault(_fbjsLibExecutionEnvironment);
 
-	var _fbjsLibShallowEqual = __webpack_require__(325);
+	var _fbjsLibShallowEqual = __webpack_require__(365);
 
 	var _fbjsLibShallowEqual2 = _interopRequireDefault(_fbjsLibShallowEqual);
 
@@ -34408,7 +38037,7 @@ module.exports =
 	};
 
 /***/ },
-/* 324 */
+/* 364 */
 /***/ function(module, exports) {
 
 	/**
@@ -34449,7 +38078,7 @@ module.exports =
 	module.exports = ExecutionEnvironment;
 
 /***/ },
-/* 325 */
+/* 365 */
 /***/ function(module, exports) {
 
 	/**
@@ -34504,7 +38133,7 @@ module.exports =
 	module.exports = shallowEqual;
 
 /***/ },
-/* 326 */
+/* 366 */
 /***/ function(module, exports) {
 
 	exports.__esModule = true;
@@ -34537,7 +38166,7 @@ module.exports =
 	};
 
 /***/ },
-/* 327 */
+/* 367 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports.__esModule = true;

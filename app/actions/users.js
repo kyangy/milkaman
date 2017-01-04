@@ -1,27 +1,19 @@
 'use strict'
 
-import { USER } from '../constants'
-import { actionCreator, fetchAction } from './index.js'
+import { polyfill } from 'es6-promise';
+import { GET, PUT, POST, DELETE } from '../utils/requests';
 
-export function signUp(email) { 
-  return (dispatch, getState) => {
-    fetchAction(
-      dispatch,
-      `http://localhost:3000/api/signup`,
-      {
-        credentials: 'include',
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email
-        })
-      },
-      actionCreator(USER.SIGN_UP_REQUEST),
-      actionCreator(USER.SIGN_UP_SUCCESS),
-      actionCreator(USER.SIGN_UP_FAILURE)
-    )
+import types from '../types';
+
+polyfill();
+
+export function signUp(email) {
+  return {
+    type: types.SIGN_UP,
+    promise: POST('signup', {
+      data: {
+        email
+      }
+    })
   }
 }
