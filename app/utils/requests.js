@@ -1,7 +1,7 @@
 'use strict'
 
 import axios from 'axios';
-const apiUrl = (process.env.NODE_ENV === 'production') ? 'https://api.milkaman.herokuapp.com' : 'http://localhost:3000/api';
+const apiUrl = (process.env.NODE_ENV === 'production') ? 'https://milkaman.herokuapp.com/api' : 'http://localhost:3000/api';
 
 export function GET(endpoint) {
   return axios.get(endpoint)

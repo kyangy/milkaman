@@ -42,13 +42,14 @@ if (ENV === 'development') {
 expressConfig(app);
 app.use('/', routes)
 
-if (ENV !== 'production') {
-  // no subdomain in development
-  app.use('/api', api)
-} else {
-  // use subdomain in production
-  app.use(subdomain('api', api))
-}
+app.use('/api', api)
+// if (ENV !== 'production') {
+//   // no subdomain in development
+//   app.use('/api', api)
+// } else {
+//   // use subdomain in production
+//   app.use(subdomain('api', api))
+// }
 
 app.get('*', App.default);
 
