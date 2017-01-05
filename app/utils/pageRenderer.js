@@ -38,8 +38,8 @@ const buildPage = (header, componentHTML, initialState) =>
       ${header.meta.toString()}
       ${header.link.toString()}
 
-      <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-      <link rel="icon" href="/favicon.ico" type="image/x-icon">
+      <link rel="shortcut icon" href="/imgs/favicon.ico" type="image/x-icon">
+      <link rel="icon" href="/imgs/favicon.ico" type="image/x-icon">
       <link rel="canonical" href="http://www.chocolatey.club/" />
       <link rel="copyright" href="http://www.chocolatey.club" />
 
