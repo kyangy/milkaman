@@ -14,12 +14,17 @@ body {
 
 .app {
   @apply --box;
-  height: 100%;
+  height: 110vh;
   font-weight: normal;
   font-smoothing: antialiased;
   background-color: black;
 }
 
+@media (max-width: 718px) {
+  .app {
+    height: 130vh;
+  }
+}
 
 /* Add your global styles below... */
 

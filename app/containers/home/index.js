@@ -50,8 +50,7 @@ class Home extends Component {
 
     return (
       <div className='container-fluid'>
-        <div className={ cx('snow') }>
-        </div>
+        <div className={ cx('snow') }></div>
         <div className='row'>
           <div className={ cx('row-container') }>
             <div className='col-md-6'>
