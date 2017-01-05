@@ -34,8 +34,8 @@ button:hover {
 .snow{
   background: none;
   font-family: Androgyne;
-  background-image: url('https://chocolatey.club/imgs/snow1.png'), url('https://chocolatey.club/imgs/snow2.png'), url('https://chocolatey.club/imgs/snow3.png');
-  height: 100%;
+  background-image: url('/imgs/snow1.png'), url('/imgs/snow2.png'), url('/imgs/snow3.png');
+  height: 100vh;
   left: 0;
   position: absolute;
   top: 0;
