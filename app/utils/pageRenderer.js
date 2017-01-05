@@ -26,21 +26,21 @@ const buildPage = (header, componentHTML, initialState) =>
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       <meta name="author" content="Kevin Yang" />
       <meta property="fb:app_id" content="1860192070878885" />
-      <meta property="og:url" content="https://www.kyangy.com" />
-      <meta property="og:title" content="KYANGY" />
+      <meta property="og:url" content="https://www.chocolatey.club" />
+      <meta property="og:title" content="Chocolatey Club" />
       <meta property="og:description" content="Web/Mobile Apps" />
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-      <meta name="apple-mobile-web-app-title" content= "KYANGY" />
+      <meta name="apple-mobile-web-app-title" content= "Chocolatey Club" />
       <meta name="msapplication-TileColor" content= "#3372DF" />
 
       ${header.meta.toString()}
       ${header.link.toString()}
 
       <link rel="icon" href="/favicon.ico" />
-      <link rel="canonical" href="http://www.kyangy.com/" />
-      <link rel="copyright" href="http://www.kyangy.com" />
+      <link rel="canonical" href="http://www.chocolatey.club/" />
+      <link rel="copyright" href="http://www.chocolatey.club" />
 
       <link rel="stylesheet" href="/vendors/tether/dist/css/tether.min.css" />
       <link rel="stylesheet" href="/vendors/bootstrap/dist/css/bootstrap.min.css" />
