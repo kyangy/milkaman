@@ -97,6 +97,7 @@ class Home extends Component {
 
             <div className='row' style={{ paddingTop: '40px' }}>
               <div className={ cx('bottom-signup') }>
+                <p style={{ color: 'white' }} className='text-xs-center text-md-center'>{ signedUp.message }</p>
                 <input placeholder='EMAIL' onChange={ (email) => this.onChangeEmail(email) } />
                 <button onClick={ this._signUp }>YES, SIGN ME UP ON THE WAITLIST!</button>
               </div>
