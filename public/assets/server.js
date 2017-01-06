@@ -9901,16 +9901,16 @@ module.exports =
 	                  _react2.default.createElement('img', { className: cx('img-width'), src: '/imgs/milka.png' })
 	                )
 	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { style: { position: 'relative' }, className: 'text-xs-center text-md-center' },
+	              _react2.default.createElement(
+	                Link,
+	                { activeClass: 'active', to: 'works', spy: true, smooth: true },
+	                _react2.default.createElement(_handODown2.default, { className: cx('hand'), style: { paddingTop: '20px' }, color: 'white', size: 70 })
+	              )
 	            )
-	          )
-	        ),
-	        _react2.default.createElement(
-	          'div',
-	          null,
-	          _react2.default.createElement(
-	            Link,
-	            { activeClass: 'active', to: 'works', spy: true, smooth: true },
-	            'Hi'
 	          )
 	        ),
 	        _react2.default.createElement(
@@ -9979,6 +9979,11 @@ module.exports =
 	              _react2.default.createElement(
 	                'div',
 	                { className: cx('bottom-signup') },
+	                _react2.default.createElement(
+	                  'p',
+	                  { style: { color: 'white' }, className: 'text-xs-center text-md-center' },
+	                  signedUp.message
+	                ),
 	                _react2.default.createElement('input', { placeholder: 'EMAIL', onChange: function onChange(email) {
 	                    return _this2.onChangeEmail(email);
 	                  } }),
@@ -32932,7 +32937,7 @@ module.exports =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var apiUrl = process.env.NODE_ENV === 'production' ? 'https://milkaman.herokuapp.com/api' : 'http://localhost:3000/api';
+	var apiUrl = process.env.NODE_ENV === 'production' ? 'https://chocolatey.club/api' : 'http://localhost:3000/api';
 
 	function GET(endpoint) {
 	  return _axios2.default.get(endpoint);
@@ -35738,7 +35743,8 @@ module.exports =
 		"three-steps": "index__three-steps___3UPCv",
 		"step-icon": "index__step-icon___1hy5N",
 		"bottom-signup": "index__bottom-signup___3O6Vh",
-		"snow": "index__snow___1sMmE"
+		"snow": "index__snow___1sMmE",
+		"hand": "index__hand___oQEbB"
 	};
 
 /***/ },
