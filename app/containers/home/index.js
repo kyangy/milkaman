@@ -61,14 +61,48 @@ class Home extends Component {
                 <p style={{ color: 'white' }} className='text-xs-center text-md-center'>{ signedUp.message }</p>
                 <h2 style={{ color: 'white' }} className='text-xs-center text-md-center'>YOUR CHOCOLATE CRAVINGS DELIVERED TO YOUR DOOR!</h2>
                 <input placeholder='EMAIL' onChange={ (email) => this.onChangeEmail(email) } />
-                <button onClick={ this._signUp }>SIGN UP</button>
+                <button onClick={ this._signUp }>YES, SIGN ME UP ON THE WAITLIST!</button>
                 <div className='text-xs-center text-md-center'>
                   <img className={ cx('img-width') } src='/imgs/milka.png' />
                 </div>
               </div>
             </div>
+
+            <div style={{ position: 'relative' }} className='text-xs-center text-md-center'>
+              <Link activeClass="active" to='works' spy={true} smooth={true}><HandDown className={ cx('hand') } style={{ paddingTop: '20px' }} color='white' size={70}/></Link>
+            </div>
           </div>
         </div>
+
+        <Element name='works'>
+          <div className={ cx('three-steps') }>
+            <div className='row text-xs-center text-md-center'>
+              <h3 style={{ paddingBottom: '40px' }}>HOW IT WORKS</h3>
+              <div className='col-md-4'>
+                <img className={ cx('step-icon') } src='imgs/choco.svg' />
+                <p>SWEETS DELIVERED</p>
+                <p>Milka chocolates arrive every month for a few bucks, so you can satisfy your sweet cravings.</p>
+              </div>
+              <div className='col-md-4'>
+                <img className={ cx('step-icon') } src='imgs/calendar.svg' />
+                <p>MONTHLY SUBSCRIPTION</p>
+                <p>Whatever day you subscribed with us, chocolate will be delivered every month of that day.</p>
+              </div>
+              <div className='col-md-4'>
+                <img className={ cx('step-icon') } src='imgs/tooth.svg' />
+                <p>CANCEL ANYTIME</p>
+                <p>Feeling a cavity? You can leave the the Club anytime you want.</p>
+              </div>
+            </div>
+
+            <div className='row' style={{ paddingTop: '40px' }}>
+              <div className={ cx('bottom-signup') }>
+                <input placeholder='EMAIL' onChange={ (email) => this.onChangeEmail(email) } />
+                <button onClick={ this._signUp }>YES, SIGN ME UP ON THE WAITLIST!</button>
+              </div>
+            </div>
+          </div>
+        </Element>
       </div>
     );
   }

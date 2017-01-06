@@ -1,5 +1,5 @@
 .row-container {
-  padding-top: 40px;
+  padding-top: 20px;
   height: 100vh;
 }
 
@@ -8,7 +8,7 @@
 }
 
 .signup-container {
-  padding-top: 70px;
+  padding-top: 50px;
 }
 
 input,
@@ -16,7 +16,7 @@ button {
   margin: 20px auto;
   display: block;
   padding: 10px;
-  width: 50%;
+  width: 70%;
   border-radius: 5px;
 }
 
@@ -31,10 +31,30 @@ button:hover {
   background: #444343;
 }
 
+.three-steps {
+  padding: 80px 40px 40px 40px;
+  color: white;
+  height: 100vh;
+}
+
+.step-icon {
+  width: 140px;
+  padding-bottom: 20px;
+}
+
+.bottom-signup {
+  position: relative;
+}
+
+.bottom-signup input,
+.bottom-signup button {
+  width: 50%;
+}
+
 .snow{
   background: none;
   background-image: url('/imgs/snow1.png'), url('/imgs/snow2.png'), url('/imgs/snow3.png');
-  height: 110vh;
+  height: 200vh;
   left: 0;
   position: absolute;
   top: 0;
@@ -43,6 +63,7 @@ button:hover {
   -moz-animation: snow 10s linear infinite;
   -ms-animation: snow 10s linear infinite;
   animation: snow 10s linear infinite;
+  /*z-index: 1;*/
 }
 
 @keyframes snow {
@@ -64,14 +85,55 @@ button:hover {
   0% {background-position: 0px 0px, 0px 0px, 0px 0px;}
   50% {background-position: 500px 500px, 100px 200px, -100px 150px;}
   100% {background-position: 500px 1000px, 200px 400px, -100px 300px;}
-} 
+}
 
 @media (max-width: 718px) {
   .signup-container {
     padding-top: 0px;
   }
 
+  input,
+  button,
+  .bottom-signup input,
+  .bottom-signup button {
+    width: 100%;
+  }
+
+  .hand {
+    display: none;
+  }
+}
+
+@media (max-width: 414px) {
   .snow {
-    height: 130vh;
+    height: 310vh;
+  }
+}
+
+/* iphone 6 */
+@media (max-width: 375px) {
+  .snow {
+    height: 340vh;
+  }
+
+  .three-steps {
+    padding-top: 220px;
+  }
+}
+
+@media (max-width: 360px) {
+  .snow {
+    height: 360vh;
+  }
+}
+
+/* iphone 5 */
+@media (max-width: 320px) {
+  .snow {
+    height: 410vh;
+  }
+
+  .three-steps {
+    padding-top: 200px;
   }
 }

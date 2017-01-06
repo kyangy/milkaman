@@ -9869,7 +9869,7 @@ module.exports =
 	            _react2.default.createElement(
 	              'div',
 	              { className: 'col-md-6' },
-	              _react2.default.createElement('img', { className: cx('img-width'), src: 'imgs/logo.png' })
+	              _react2.default.createElement('img', { className: cx('img-width'), src: 'imgs/logo3.svg' })
 	            ),
 	            _react2.default.createElement(
 	              'div',
@@ -9893,12 +9893,99 @@ module.exports =
 	                _react2.default.createElement(
 	                  'button',
 	                  { onClick: this._signUp },
-	                  'SIGN UP'
+	                  'YES, SIGN ME UP ON THE WAITLIST!'
 	                ),
 	                _react2.default.createElement(
 	                  'div',
 	                  { className: 'text-xs-center text-md-center' },
 	                  _react2.default.createElement('img', { className: cx('img-width'), src: '/imgs/milka.png' })
+	                )
+	              )
+	            )
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          null,
+	          _react2.default.createElement(
+	            Link,
+	            { activeClass: 'active', to: 'works', spy: true, smooth: true },
+	            'Hi'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          Element,
+	          { name: 'works' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: cx('three-steps') },
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'row text-xs-center text-md-center' },
+	              _react2.default.createElement(
+	                'h3',
+	                { style: { paddingBottom: '40px' } },
+	                'HOW IT WORKS'
+	              ),
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'col-md-4' },
+	                _react2.default.createElement('img', { className: cx('step-icon'), src: 'imgs/choco.svg' }),
+	                _react2.default.createElement(
+	                  'p',
+	                  null,
+	                  'SWEETS DELIVERED'
+	                ),
+	                _react2.default.createElement(
+	                  'p',
+	                  null,
+	                  'Milka chocolates arrive every month for a few bucks, so you can satisfy your sweet cravings.'
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'col-md-4' },
+	                _react2.default.createElement('img', { className: cx('step-icon'), src: 'imgs/calendar.svg' }),
+	                _react2.default.createElement(
+	                  'p',
+	                  null,
+	                  'MONTHLY SUBSCRIPTION'
+	                ),
+	                _react2.default.createElement(
+	                  'p',
+	                  null,
+	                  'Whatever day you subscribed with us, chocolate will be delivered every month of that day.'
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'col-md-4' },
+	                _react2.default.createElement('img', { className: cx('step-icon'), src: 'imgs/tooth.svg' }),
+	                _react2.default.createElement(
+	                  'p',
+	                  null,
+	                  'CANCEL ANYTIME'
+	                ),
+	                _react2.default.createElement(
+	                  'p',
+	                  null,
+	                  'Feeling a cavity? You can leave the the Club anytime you want.'
+	                )
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'row', style: { paddingTop: '40px' } },
+	              _react2.default.createElement(
+	                'div',
+	                { className: cx('bottom-signup') },
+	                _react2.default.createElement('input', { placeholder: 'EMAIL', onChange: function onChange(email) {
+	                    return _this2.onChangeEmail(email);
+	                  } }),
+	                _react2.default.createElement(
+	                  'button',
+	                  { onClick: this._signUp },
+	                  'YES, SIGN ME UP ON THE WAITLIST!'
 	                )
 	              )
 	            )
@@ -35648,6 +35735,9 @@ module.exports =
 		"row-container": "index__row-container___S0qKY",
 		"img-width": "index__img-width___3wHco",
 		"signup-container": "index__signup-container___1onUE",
+		"three-steps": "index__three-steps___3UPCv",
+		"step-icon": "index__step-icon___1hy5N",
+		"bottom-signup": "index__bottom-signup___3O6Vh",
 		"snow": "index__snow___1sMmE"
 	};
 
