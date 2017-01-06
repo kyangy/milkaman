@@ -54,7 +54,7 @@ class Home extends Component {
         <div className='row'>
           <div className={ cx('row-container') }>
             <div className='col-md-6'>
-              <img className={ cx('img-width') } src='imgs/logo.png' />
+              <img className={ cx('img-width') } src='imgs/logo3.svg' />
             </div>
             <div className='col-md-6'>
               <div className={ cx('signup-container')}>
