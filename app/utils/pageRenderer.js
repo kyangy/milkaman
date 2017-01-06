@@ -19,7 +19,7 @@ const buildPage = (header, componentHTML, initialState) =>
   <html ${header.htmlAttributes.toString()}>
     <head>
 
-      ${header.title.toString()}
+      <title>Chocolatey Club | Subscription Service On Milka Chocolates</title>
 
       <meta charset="utf-8" />
       <meta http-equiv"="X-UA-Compatible" content="IE=edge" />
