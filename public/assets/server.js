@@ -32937,7 +32937,7 @@ module.exports =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var apiUrl = process.env.NODE_ENV === 'production' ? 'https://chocolatey.club/api' : 'http://localhost:3000/api';
+	var apiUrl = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3000/api';
 
 	function GET(endpoint) {
 	  return _axios2.default.get(endpoint);
